@@ -1,4 +1,4 @@
-package com.oaosis.samak.domain.member.presentation;
+package com.oaosis.samak.domain.member.repository;
 
 import com.oaosis.samak.domain.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;

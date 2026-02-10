@@ -6,7 +6,7 @@ import com.oaosis.samak.domain.auth.exception.AuthErrorCode;
 import com.oaosis.samak.domain.auth.exception.CustomAuthException;
 import com.oaosis.samak.domain.member.entity.Member;
 import com.oaosis.samak.domain.member.entity.enums.Role;
-import com.oaosis.samak.domain.member.presentation.MemberRepository;
+import com.oaosis.samak.domain.member.repository.MemberRepository;
 import com.oaosis.samak.global.security.dto.TokenResponse;
 import com.oaosis.samak.global.security.jwt.JwtTokenProvider;
 import com.oaosis.samak.global.security.oauth2.service.OAuth2AuthenticationService;

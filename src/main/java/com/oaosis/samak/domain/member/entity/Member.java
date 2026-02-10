@@ -19,29 +19,36 @@ public class Member extends BaseEntity {
     @Column(name = "member_id")
     private Long id;
 
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Column(length = 50)
+    private String nickname;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "provider", nullable = false)
-    private OAuth2Provider provider;
-
-    @Column(name = "provider_id", nullable = false, length = 100)
+    @Column(name = "provider_id", nullable = false, length = 20)
     private String providerId;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String email;
+    private OAuth2Provider provider;
 
-    @Column(name = "is_onboarded", nullable = false)
+    @Column(name = "profile_image_name")
+    private String profileImageName;
+
     private boolean isOnboarded = false;
 
     @Builder
-    public Member(Role role, OAuth2Provider provider, String providerId, String email) {
-        this.role = role;
-        this.provider = provider;
-        this.providerId = providerId;
+    public Member(String email, String nickname, Role role, String providerId, OAuth2Provider provider, String profileImageName) {
         this.email = email;
+        this.nickname = nickname;
+        this.role = role;
+        this.providerId = providerId;
+        this.provider = provider;
+        this.profileImageName = profileImageName;
         this.isOnboarded = false;
     }
 }

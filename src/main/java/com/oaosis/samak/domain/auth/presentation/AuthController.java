@@ -1,4 +1,4 @@
-package com.oaosis.samak.domain.auth.controller;
+package com.oaosis.samak.domain.auth.presentation;
 
 import com.oaosis.samak.domain.auth.dto.OAuth2LoginRequest;
 import com.oaosis.samak.global.security.oauth2.entity.enums.OAuth2Provider;
