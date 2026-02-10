@@ -1,0 +1,20 @@
+spring:
+  profiles:
+    active: local
+
+server:
+  forward-headers-strategy: framework
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+    import: application-local.yml, application-swagger.yml, application-google.yml, application-s3.yml
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import: application-prod.yml, application-swagger.yml, application-google.yml, application-s3.yml
