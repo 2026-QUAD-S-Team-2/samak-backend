@@ -43,4 +43,15 @@ public class AuthService {
 
         return jwtTokenProvider.issueAccessToken(member.getEmail(), member.getId(), member.getRole(), member.isOnboarded());
     }
+
+    public void logout(String accessToken) {
+        if (accessToken == null) {
+            throw new CustomAuthException(AuthErrorCode.TOKEN_NOT_FOUND);
+        }
+
+        Long expiration = jwtTokenProvider.getExpiration(accessToken);
+        if (expiration > 0) {
+            redisService.saveValue("blacklist:" + accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
+        }
+    }
 }

@@ -30,4 +30,13 @@ public class AuthController {
         TokenResponse tokenResponse = authService.loginWithOAuth2(provider, request.idToken());
         return ResponseEntity.ok(ApiResponse.success(tokenResponse));
     }
+
+    @Operation(summary = "로그아웃")
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(
+            @Parameter(hidden = true)
+            @AccessToken String accessToken) {
+        authService.logout(accessToken);
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
 }
