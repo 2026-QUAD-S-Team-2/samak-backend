@@ -1,6 +1,6 @@
 package com.oaosis.samak.domain.analysis.entity;
 
-import com.oaosis.samak.domain.analysis.entity.enums.AnalysisItemType;
+import com.oaosis.samak.domain.analysis.enums.AnalysisItemType;
 import com.oaosis.samak.domain.member.entity.Member;
 import com.oaosis.samak.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -22,7 +22,10 @@ public class AnalysisItem extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private Member user;
+    private Member member;
+
+    @OneToOne(mappedBy = "analysisItem", fetch = FetchType.LAZY)
+    private AnalysisSummary analysisSummary;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

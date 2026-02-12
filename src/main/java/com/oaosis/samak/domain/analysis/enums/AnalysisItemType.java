@@ -1,4 +1,4 @@
-package com.oaosis.samak.domain.analysis.entity.enums;
+package com.oaosis.samak.domain.analysis.enums;
 
 public enum AnalysisItemType {
     JOB_POST,
