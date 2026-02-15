@@ -2,7 +2,7 @@ package com.oaosis.samak.domain.analysis.application;
 
 import com.oaosis.samak.domain.analysis.dto.response.AnalysisItemDetailResponse;
 import com.oaosis.samak.domain.analysis.dto.response.AnalysisItemListResponse;
-import com.oaosis.samak.domain.analysis.dto.response.CountryWarningListResponse;
+import com.oaosis.samak.domain.analysis.dto.response.CountryWarningResponse;
 import com.oaosis.samak.domain.analysis.entity.AnalysisItem;
 import com.oaosis.samak.domain.analysis.entity.AnalysisSummary;
 import com.oaosis.samak.domain.analysis.entity.CountryWarning;
@@ -64,6 +64,19 @@ public class AnalysisService {
                 analysisItem,
                 mapToSummaryDto(analysisItem.getAnalysisSummary())
         );
+    }
+
+    public CountryWarningResponse getCountryWarning(String email, Long analysisItemId) {
+        Member member = getMember(email);
+        AnalysisItem analysisItem = getAnalysisItem(analysisItemId);
+        validateOwnership(member, analysisItem);
+
+        CountryWarning countryWarning = analysisItem.getCountryWarning();
+        if (countryWarning == null) {
+            return new CountryWarningResponse(null);
+        }
+
+        return new CountryWarningResponse(countryWarning.getWarningMessage());
     }
 
     private Member getMember(String email) {

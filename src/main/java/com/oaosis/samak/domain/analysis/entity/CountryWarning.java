@@ -16,7 +16,7 @@ public class CountryWarning extends BaseTimeEntity {
     @Column(name = "country_warning_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "analysis_item_id", nullable = false)
     private AnalysisItem analysisItem;
 

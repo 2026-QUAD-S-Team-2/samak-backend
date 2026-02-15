@@ -27,6 +27,9 @@ public class AnalysisItem extends BaseTimeEntity {
     @OneToOne(mappedBy = "analysisItem", fetch = FetchType.LAZY)
     private AnalysisSummary analysisSummary;
 
+    @OneToOne(mappedBy = "analysisItem", fetch = FetchType.LAZY)
+    private CountryWarning countryWarning;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AnalysisItemType type;

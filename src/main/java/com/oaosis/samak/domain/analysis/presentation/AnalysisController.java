@@ -1,7 +1,9 @@
 package com.oaosis.samak.domain.analysis.presentation;
 
 import com.oaosis.samak.domain.analysis.application.AnalysisService;
+import com.oaosis.samak.domain.analysis.dto.response.AnalysisItemDetailResponse;
 import com.oaosis.samak.domain.analysis.dto.response.AnalysisItemListResponse;
+import com.oaosis.samak.domain.analysis.dto.response.CountryWarningResponse;
 import com.oaosis.samak.domain.analysis.enums.SortType;
 import com.oaosis.samak.global.response.ApiResponse;
 import com.oaosis.samak.global.security.entity.AuthenticatedUser;
@@ -45,6 +47,17 @@ public class AnalysisController {
             @RequestParam Long analysisItemId
     ) {
         AnalysisItemDetailResponse response = analysisService.getAnalysisItemDetail(user.getEmail(), analysisItemId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @Operation(summary = "분석 아이템 국가 기반 경고 메시지 조회")
+    @GetMapping("/items/warnings")
+    public ResponseEntity<ApiResponse<CountryWarningResponse>> getCountryWarning(
+            @AuthenticationPrincipal AuthenticatedUser user,
+            @Parameter(description = "분석 아이템 ID", example = "1")
+            @RequestParam Long analysisItemId
+    ) {
+        CountryWarningResponse response = analysisService.getCountryWarning(user.getEmail(), analysisItemId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 }
