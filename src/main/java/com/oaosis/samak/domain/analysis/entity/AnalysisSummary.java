@@ -22,8 +22,8 @@ public class AnalysisSummary extends BaseTimeEntity {
     @JoinColumn(name = "analysis_item_id", nullable = false)
     private AnalysisItem analysisItem;
 
-    @Column(name = "risk_score", nullable = false, precision = 5, scale = 2)
-    private BigDecimal riskScore;
+    @Column(name = "score", nullable = false, precision = 5, scale = 2)
+    private BigDecimal score;
 
     @Column(columnDefinition = "TEXT")
     private String message;

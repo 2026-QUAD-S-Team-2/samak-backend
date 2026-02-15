@@ -20,17 +20,16 @@ public record AnalysisItemListResponse(
         @Schema(description = "생성 날짜")
         LocalDateTime createdAt,
 
-        @Schema(description = "위험 점수", example = "75.50")
-        BigDecimal riskScore
+        @Schema(description = "신뢰도", example = "75.50")
+        BigDecimal score
 ) {
-    public static AnalysisItemListResponse of(AnalysisItem item, BigDecimal riskScore) {
+    public static AnalysisItemListResponse of(AnalysisItem item, BigDecimal score) {
         return new AnalysisItemListResponse(
                 item.getId(),
                 item.getCompanyName(),
                 item.getCountryCode(),
                 item.getCreatedAt(),
-                riskScore
+                score
         );
     }
 }
-

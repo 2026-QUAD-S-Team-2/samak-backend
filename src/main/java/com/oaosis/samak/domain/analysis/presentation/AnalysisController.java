@@ -36,4 +36,15 @@ public class AnalysisController {
         List<AnalysisItemListResponse> responses = analysisService.getAnalysisItemList(user.getEmail(), sortType);
         return ResponseEntity.ok(ApiResponse.success(responses));
     }
+
+    @Operation(summary = "분석 아이템 기본 정보 및 AI 분석 결과 조회")
+    @GetMapping("/items/detail")
+    public ResponseEntity<ApiResponse<AnalysisItemDetailResponse>> getAnalysisItemDetail(
+            @AuthenticationPrincipal AuthenticatedUser user,
+            @Parameter(description = "분석 아이템 ID", example = "1")
+            @RequestParam Long analysisItemId
+    ) {
+        AnalysisItemDetailResponse response = analysisService.getAnalysisItemDetail(user.getEmail(), analysisItemId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
 }

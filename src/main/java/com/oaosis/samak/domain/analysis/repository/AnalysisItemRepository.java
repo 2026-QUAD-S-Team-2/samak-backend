@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface AnalysisItemRepository extends JpaRepository<AnalysisItem, Long> {
 
@@ -17,4 +18,12 @@ public interface AnalysisItemRepository extends JpaRepository<AnalysisItem, Long
             ORDER BY ai.createdAt DESC
             """)
     List<AnalysisItem> findByUserWithSummaryOrderByCreatedAtDesc(@Param("member") Member member);
+
+    @Query("""
+            SELECT DISTINCT ai FROM AnalysisItem ai
+            LEFT JOIN FETCH ai.analysisSummary
+            LEFT JOIN FETCH ai.countryWarning
+            WHERE ai.id = :analysisItemId
+            """)
+    Optional<AnalysisItem> findByIdWithDetails(@Param("analysisItemId") Long analysisItemId);
 }
