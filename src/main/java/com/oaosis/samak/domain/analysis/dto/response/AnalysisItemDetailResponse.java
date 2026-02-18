@@ -12,13 +12,10 @@ import java.time.LocalDateTime;
 public record AnalysisItemDetailResponse(
         @Schema(description = "분석 아이템 ID", example = "1")
         Long id,
-
-        @Schema(description = "출처 URL")
+        @Schema(description = "출처 URL", example = "https://www.example.com/job-posting")
         String sourceUrl,
-
         @Schema(description = "국가 코드", example = "KR")
         String countryCode,
-
         @Schema(description = "지역 ID", example = "1")
         Long regionId,
 
