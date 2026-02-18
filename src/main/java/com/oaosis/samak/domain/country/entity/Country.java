@@ -19,4 +19,10 @@ public class Country extends BaseTimeEntity {
     private String name;
 
     private String code;
+
+    @Column(length = 2, nullable = false)
+    private String languageCode;
+
+    @Column(length = 3, nullable = false)
+    private String currencyCode;
 }

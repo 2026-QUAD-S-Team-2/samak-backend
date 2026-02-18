@@ -5,6 +5,7 @@ import com.oaosis.samak.domain.country.application.CountryListResponse;
 import com.oaosis.samak.domain.country.service.CountryService;
 import com.oaosis.samak.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,7 @@ public class CountryController {
     @Operation(summary = "국가별 도시 리스트 조회")
     @GetMapping("/{countryCode}/cities")
     public ResponseEntity<ApiResponse<List<CityListResponse>>> getCities(
+            @Schema(description = "국가 코드", example = "US")
             @PathVariable String countryCode) {
         return ResponseEntity.ok(ApiResponse.success(countryService.getCities(countryCode)));
     }

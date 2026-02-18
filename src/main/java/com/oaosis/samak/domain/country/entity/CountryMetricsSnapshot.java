@@ -7,23 +7,42 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CountryMetricsSnapshot extends BaseEntity {
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {"country_code", "snapshot_date"}
+                )
+        }
+)
+public class CountryMetricsSnapshot{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "country_metrics_snapshot_id")
     private Long id;
 
-    @Column(name = "country_code", nullable = false, length = 2)
-    private String countryCode;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "country_id", nullable = false)
+    private Country country;
 
     @Column(name = "min_wage", precision = 12, scale = 2)
     private BigDecimal minWage;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "wage_unit", length = 20, nullable = false)
+    private WageUnit minWageUnit;
+
+    @Column(name = "median_income", precision = 12, scale = 2)
+    private BigDecimal medianIncome;
+
     @Column(name = "avg_income", precision = 12, scale = 2)
     private BigDecimal avgIncome;
+
+    @Column(name = "snapshot_date", nullable = false)
+    private LocalDate snapshotDate;
 }

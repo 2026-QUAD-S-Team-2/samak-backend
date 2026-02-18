@@ -112,10 +112,16 @@ public class AnalysisService {
         analysisItemRepository.save(analysisItem);
         analysisImageRepository.saveAll(images);
 
+        CountryMetricsSnapshot countryMetricsSnapshot = countryMetricsSnapshotRepository.findTopByCountryOrderBySnapshotDateDesc(country)
+                .orElseThrow(() -> new CountryException(CountryErrorCode.COUNTRY_METRICS_NOT_FOUND));
+
         //TODO: AI 분석 요청, 국가별 경고 메시지 생성 요청 로직 추가
         AIAnalysisResult aiAnalysisResult = new AIAnalysisResult(analysisItem, 75, "HIGH", "분석 결과 요약 텍스트");
         aiAnalysisResultRepository.save(aiAnalysisResult);
-        CountryWarning countryWarning = new CountryWarning(analysisItem, "국가 기반 메시지 테스트");
+
+        String warningMessage = CountryMetricsMessageGenerator.generateMessage(country, countryMetricsSnapshot);
+        CountryWarning countryWarning = new CountryWarning(analysisItem, warningMessage);
+
         countryWarningRepository.save(countryWarning);
     }
 
