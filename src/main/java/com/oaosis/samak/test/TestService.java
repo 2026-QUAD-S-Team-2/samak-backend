@@ -22,20 +22,19 @@ public class TestService {
     private final OAuth2AuthenticationService oauth2AuthenticationService;
     private final MemberRepository memberRepository;
 
-    public TokenResponse login() {
-        String testEmail = "test@gmail.com";
+    public TokenResponse login(String email) {
 
-        Member member = memberRepository.findByEmail(testEmail)
+        Member member = memberRepository.findByEmail(email)
                 .orElseGet(() -> {
                     Member newMember = Member.builder()
                             .role(Role.MEMBER)
                             .provider(OAuth2Provider.GOOGLE)
                             .providerId("test")
-                            .email(testEmail)
+                            .email(email)
                             .build();
                     return memberRepository.save(newMember);
                 });
 
-        return jwtTokenProvider.issueAccessToken(testEmail, member.getId(), Role.MEMBER, false);
+        return jwtTokenProvider.issueAccessToken(email, member.getId(), Role.MEMBER, false);
     }
 }
