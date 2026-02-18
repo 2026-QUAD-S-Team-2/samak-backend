@@ -1,6 +1,8 @@
 package com.oaosis.samak.domain.analysis.presentation;
 
 import com.oaosis.samak.domain.analysis.application.AnalysisService;
+import com.oaosis.samak.domain.analysis.dto.request.AnalysisItemCreateRequest;
+import com.oaosis.samak.domain.analysis.dto.response.AIAnalysisResultResponse;
 import com.oaosis.samak.domain.analysis.dto.response.AnalysisItemDetailResponse;
 import com.oaosis.samak.domain.analysis.dto.response.AnalysisItemListResponse;
 import com.oaosis.samak.domain.analysis.dto.response.CountryWarningResponse;
@@ -13,10 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -70,5 +69,16 @@ public class AnalysisController {
     ) {
         CountryWarningResponse response = analysisService.getCountryWarning(user.getEmail(), analysisItemId);
         return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @Operation(summary = "분석 아이템 등록")
+    @PostMapping("/items")
+    public ResponseEntity<ApiResponse<Void>> createAnalysisItem(
+            @AuthenticationPrincipal AuthenticatedUser user,
+            @Parameter(description = "분석 아이템 등록 요청", required = true)
+            @RequestBody AnalysisItemCreateRequest request
+    ) {
+        analysisService.createAnalysisItem(user.getEmail(), request);
+        return ResponseEntity.ok(ApiResponse.success());
     }
 }

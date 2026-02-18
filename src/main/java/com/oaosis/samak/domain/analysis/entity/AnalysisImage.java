@@ -22,4 +22,9 @@ public class AnalysisImage extends BaseTimeEntity {
 
     @Column(name = "image_name", nullable = false)
     private String imageName;
+
+    public AnalysisImage(AnalysisItem analysisItem, String imageName) {
+        this.analysisItem = analysisItem;
+        this.imageName = imageName;
+    }
 }

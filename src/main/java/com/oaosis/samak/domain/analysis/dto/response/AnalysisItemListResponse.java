@@ -21,13 +21,13 @@ public record AnalysisItemListResponse(
         LocalDateTime createdAt,
 
         @Schema(description = "신뢰도", example = "75.50")
-        BigDecimal score
+        Integer score
 ) {
-    public static AnalysisItemListResponse of(AnalysisItem item, BigDecimal score) {
+    public static AnalysisItemListResponse of(AnalysisItem item, Integer score) {
         return new AnalysisItemListResponse(
                 item.getId(),
                 item.getCompanyName(),
-                item.getCountryCode(),
+                item.getCountry().getCode(),
                 item.getCreatedAt(),
                 score
         );
