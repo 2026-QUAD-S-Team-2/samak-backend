@@ -73,12 +73,12 @@ public class AnalysisController {
 
     @Operation(summary = "분석 아이템 등록")
     @PostMapping("/items")
-    public ResponseEntity<ApiResponse<Void>> createAnalysisItem(
+    public ResponseEntity<ApiResponse<AnalysisItemDetailResponse>> createAnalysisItem(
             @AuthenticationPrincipal AuthenticatedUser user,
             @Parameter(description = "분석 아이템 등록 요청", required = true)
             @RequestBody AnalysisItemCreateRequest request
     ) {
-        analysisService.createAnalysisItem(user.getEmail(), request);
-        return ResponseEntity.ok(ApiResponse.success());
+        AnalysisItemDetailResponse response = analysisService.createAnalysisItem(user.getEmail(), request);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

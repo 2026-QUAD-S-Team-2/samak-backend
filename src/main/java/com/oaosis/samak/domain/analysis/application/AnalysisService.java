@@ -18,9 +18,11 @@ import com.oaosis.samak.domain.analysis.repository.AnalysisItemRepository;
 import com.oaosis.samak.domain.analysis.repository.CountryWarningRepository;
 import com.oaosis.samak.domain.country.entity.City;
 import com.oaosis.samak.domain.country.entity.Country;
+import com.oaosis.samak.domain.country.entity.CountryMetricsSnapshot;
 import com.oaosis.samak.domain.country.exception.CountryErrorCode;
 import com.oaosis.samak.domain.country.exception.CountryException;
 import com.oaosis.samak.domain.country.repository.CityRepository;
+import com.oaosis.samak.domain.country.repository.CountryMetricsSnapshotRepository;
 import com.oaosis.samak.domain.country.repository.CountryRepository;
 import com.oaosis.samak.domain.member.entity.Member;
 import com.oaosis.samak.domain.member.exception.MemberErrorCode;
@@ -45,6 +47,7 @@ public class AnalysisService {
     private final AnalysisImageRepository analysisImageRepository;
     private final AIAnalysisResultRepository aiAnalysisResultRepository;
     private final CountryWarningRepository countryWarningRepository;
+    private final CountryMetricsSnapshotRepository countryMetricsSnapshotRepository;
 
     public List<AnalysisItemListResponse> getAnalysisItemList(String email, SortType sortType) {
         Member member = getMember(email);
@@ -89,7 +92,7 @@ public class AnalysisService {
     }
 
     @Transactional
-    public void createAnalysisItem(String email, AnalysisItemCreateRequest request) {
+    public AnalysisItemDetailResponse createAnalysisItem(String email, AnalysisItemCreateRequest request) {
         Member member = getMember(email);
         Country country = getCountry(request);
         City city = getCity(request);
@@ -123,6 +126,8 @@ public class AnalysisService {
         CountryWarning countryWarning = new CountryWarning(analysisItem, warningMessage);
 
         countryWarningRepository.save(countryWarning);
+
+        return AnalysisItemDetailResponse.of(analysisItem);
     }
 
     private City getCity(AnalysisItemCreateRequest request) {
