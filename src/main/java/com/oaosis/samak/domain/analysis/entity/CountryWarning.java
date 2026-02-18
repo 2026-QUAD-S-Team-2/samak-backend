@@ -22,4 +22,9 @@ public class CountryWarning extends BaseTimeEntity {
 
     @Column(name = "warning_message", nullable = false, columnDefinition = "TEXT")
     private String warningMessage;
+
+    public CountryWarning(AnalysisItem analysisItem, String warningMessage) {
+        this.analysisItem = analysisItem;
+        this.warningMessage = warningMessage;
+    }
 }

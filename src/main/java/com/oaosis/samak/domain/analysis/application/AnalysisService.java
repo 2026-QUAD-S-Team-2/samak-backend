@@ -43,8 +43,8 @@ public class AnalysisService {
         List<AnalysisItemListResponse> response = analysisItems.stream()
                 .map(item -> AnalysisItemListResponse.of(
                         item,
-                        item.getAnalysisSummary() != null ?
-                            item.getAnalysisSummary().getScore() : null
+                        item.getAIAnalysisResult() != null ?
+                            item.getAIAnalysisResult().getRiskScore() : null
                 ))
                 .collect(Collectors.toList());
 
@@ -56,20 +56,13 @@ public class AnalysisService {
     }
 
     public AnalysisItemDetailResponse getAnalysisItemDetail(String email, Long analysisItemId) {
-        Member member = getMember(email);
-        AnalysisItem analysisItem = getAnalysisItem(analysisItemId);
-        validateOwnership(member, analysisItem);
+        AnalysisItem analysisItem = getAnalysisItem(email, analysisItemId);
 
-        return AnalysisItemDetailResponse.of(
-                analysisItem,
-                mapToSummaryDto(analysisItem.getAnalysisSummary())
-        );
+        return AnalysisItemDetailResponse.of(analysisItem);
     }
 
     public CountryWarningResponse getCountryWarning(String email, Long analysisItemId) {
-        Member member = getMember(email);
-        AnalysisItem analysisItem = getAnalysisItem(analysisItemId);
-        validateOwnership(member, analysisItem);
+        AnalysisItem analysisItem = getAnalysisItem(email, analysisItemId);
 
         CountryWarning countryWarning = analysisItem.getCountryWarning();
         if (countryWarning == null) {

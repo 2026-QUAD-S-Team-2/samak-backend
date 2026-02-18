@@ -39,23 +39,34 @@ public class AnalysisController {
         return ResponseEntity.ok(ApiResponse.success(responses));
     }
 
-    @Operation(summary = "분석 아이템 기본 정보 및 AI 분석 결과 조회")
-    @GetMapping("/items/detail")
+    @Operation(summary = "분석 아이템 기본 정보 조회")
+    @GetMapping("/items/{analysisItemId}/detail")
     public ResponseEntity<ApiResponse<AnalysisItemDetailResponse>> getAnalysisItemDetail(
             @AuthenticationPrincipal AuthenticatedUser user,
             @Parameter(description = "분석 아이템 ID", example = "1")
-            @RequestParam Long analysisItemId
+            @PathVariable Long analysisItemId
     ) {
         AnalysisItemDetailResponse response = analysisService.getAnalysisItemDetail(user.getEmail(), analysisItemId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
+    @Operation(summary = "분석 아이템 AI 분석결과 조회")
+    @GetMapping("/items/{analysisItemId}/ai-analysis")
+    public ResponseEntity<ApiResponse<AIAnalysisResultResponse>> getAIAnalysisResult(
+            @AuthenticationPrincipal AuthenticatedUser user,
+            @Parameter(description = "분석 아이템 ID", example = "1")
+            @PathVariable Long analysisItemId
+    ) {
+        AIAnalysisResultResponse response = analysisService.getAIAnalysisResult(user.getEmail(), analysisItemId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
     @Operation(summary = "분석 아이템 국가 기반 경고 메시지 조회")
-    @GetMapping("/items/warnings")
+    @GetMapping("/items/{analysisItemId}/country-warning")
     public ResponseEntity<ApiResponse<CountryWarningResponse>> getCountryWarning(
             @AuthenticationPrincipal AuthenticatedUser user,
             @Parameter(description = "분석 아이템 ID", example = "1")
-            @RequestParam Long analysisItemId
+            @PathVariable Long analysisItemId
     ) {
         CountryWarningResponse response = analysisService.getCountryWarning(user.getEmail(), analysisItemId);
         return ResponseEntity.ok(ApiResponse.success(response));
