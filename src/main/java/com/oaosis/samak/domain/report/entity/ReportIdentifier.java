@@ -1,6 +1,6 @@
 package com.oaosis.samak.domain.report.entity;
 
-import com.oaosis.samak.global.entity.IdentifierType;
+import com.oaosis.samak.global.entity.ContactType;
 import com.oaosis.samak.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -23,7 +23,7 @@ public class ReportIdentifier extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private IdentifierType type;
+    private ContactType type;
 
     @Column(nullable = false)
     private String value;

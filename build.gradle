@@ -5,8 +5,6 @@ plugins {
 }
 
 group = 'com.oaosis'
-version = '0.0.1-SNAPSHOT'
-description = 'Demo project for Spring Boot'
 
 java {
 	toolchain {
@@ -49,4 +47,8 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+bootJar {
+	archiveFileName = 'samak-app.jar'
 }

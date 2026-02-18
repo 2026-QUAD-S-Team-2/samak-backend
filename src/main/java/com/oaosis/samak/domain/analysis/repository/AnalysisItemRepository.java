@@ -11,9 +11,11 @@ import java.util.Optional;
 
 public interface AnalysisItemRepository extends JpaRepository<AnalysisItem, Long> {
 
+    Optional<AnalysisItem> findByMember_EmailAndId(String email, Long id);
+
     @Query("""
             SELECT DISTINCT ai FROM AnalysisItem ai
-            LEFT JOIN FETCH ai.analysisSummary
+            LEFT JOIN FETCH ai.AIAnalysisResult
             WHERE ai.member = :member
             ORDER BY ai.createdAt DESC
             """)
@@ -21,7 +23,7 @@ public interface AnalysisItemRepository extends JpaRepository<AnalysisItem, Long
 
     @Query("""
             SELECT DISTINCT ai FROM AnalysisItem ai
-            LEFT JOIN FETCH ai.analysisSummary
+            LEFT JOIN FETCH ai.AIAnalysisResult
             LEFT JOIN FETCH ai.countryWarning
             WHERE ai.id = :analysisItemId
             """)

@@ -1,6 +1,6 @@
 package com.oaosis.samak.global.entity;
 
-public enum IdentifierType {
+public enum ContactType {
     EMAIL,
     TELEGRAM,
     PHONE
