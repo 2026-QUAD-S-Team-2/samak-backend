@@ -30,4 +30,11 @@ public class QuizAnswer extends BaseTimeEntity {
 
     @Column(name = "is_correct", nullable = false)
     private Boolean isCorrect;
+
+    public QuizAnswer(Quiz quiz, Member member, Boolean answer, Boolean isCorrect) {
+        this.quiz = quiz;
+        this.member = member;
+        this.answer = answer;
+        this.isCorrect = isCorrect;
+    }
 }

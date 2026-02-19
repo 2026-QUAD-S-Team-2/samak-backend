@@ -6,10 +6,12 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Quiz extends BaseTimeEntity {
+public class Quiz {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,4 +26,14 @@ public class Quiz extends BaseTimeEntity {
 
     @Column(columnDefinition = "TEXT")
     private String explanation;
+
+    @Column(name = "quiz_date", nullable = false, unique = true)
+    private LocalDate quizDate;
+
+    public Quiz(String question, Boolean answer, String explanation, LocalDate quizDate) {
+        this.question = question;
+        this.answer = answer;
+        this.explanation = explanation;
+        this.quizDate = quizDate;
+    }
 }
