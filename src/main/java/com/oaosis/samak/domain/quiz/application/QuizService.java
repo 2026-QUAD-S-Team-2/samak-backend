@@ -24,17 +24,14 @@ import java.time.LocalDate;
 @Transactional(readOnly = true)
 public class QuizService {
 
-    private final QuizRepository quizRepository;
     private final QuizAnswerRepository quizAnswerRepository;
+    private final QuizRepository quizRepository;
     private final MemberRepository memberRepository;
+    private final QuizCacheService quizCacheService;
 
     public TodayQuizResponse getTodayQuiz(String email) {
-        LocalDate today = LocalDate.now();
-        Quiz quiz = quizRepository.findByQuizDate(today)
-                .orElseThrow(() -> new QuizException(QuizErrorCode.QUIZ_NOT_FOUND));
-
+        Quiz quiz = getTodayQuiz();
         Member member = getMember(email);
-
         QuizAnswer quizAnswer = quizAnswerRepository.findByQuizAndMember(quiz, member)
                 .orElse(null);
 
@@ -44,9 +41,7 @@ public class QuizService {
     @Transactional
     public QuizAnswerResponse submitQuizAnswer(String email, QuizAnswerRequest request) {
         Member member = getMember(email);
-
-        Quiz quiz = quizRepository.findById(request.quizId())
-                .orElseThrow(() -> new QuizException(QuizErrorCode.QUIZ_NOT_FOUND));
+        Quiz quiz = getTodayQuiz();
 
         quizAnswerRepository.findByQuizAndMember(quiz, member)
                 .ifPresent(existing -> {
@@ -59,6 +54,11 @@ public class QuizService {
         quizAnswerRepository.save(quizAnswer);
 
         return new QuizAnswerResponse(isCorrect, quiz.getAnswer(), quiz.getExplanation());
+    }
+
+    private Quiz getTodayQuiz() {
+        LocalDate today = LocalDate.now();
+        return quizCacheService.getTodayQuizFromCache(today);
     }
 
     private Member getMember(String email) {
