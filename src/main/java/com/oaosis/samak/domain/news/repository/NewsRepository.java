@@ -9,4 +9,3 @@ public interface NewsRepository extends JpaRepository<News, Long> {
 
     List<News> findAllByIsActiveTrue();
 }
-

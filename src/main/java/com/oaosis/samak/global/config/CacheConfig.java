@@ -25,6 +25,7 @@ public class CacheConfig {
                 .setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ONE_DAY)); //TTL 설정
 
         createCacheIfNotExists(cacheManager, "quizzes", config);
+        createCacheIfNotExists(cacheManager, "news", config);
 
         return new JCacheCacheManager(cacheManager);
     }
