@@ -37,6 +37,7 @@ public class AuthService {
                             .provider(provider)
                             .providerId(userInfo.getProviderId())
                             .email(userInfo.getEmail())
+                            .profileImageName(userInfo.getImageUrl())
                             .nickname(userInfo.getName())
                             .build();
                     return memberRepository.save(newMember);
