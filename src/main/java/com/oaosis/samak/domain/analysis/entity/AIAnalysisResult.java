@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+@Table(name = "ai_analysis_result")
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
