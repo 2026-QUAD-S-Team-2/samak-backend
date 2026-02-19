@@ -9,7 +9,8 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum QuizErrorCode implements BaseErrorCode {
     QUIZ_NOT_FOUND(HttpStatus.NOT_FOUND, "QUIZ-001", "퀴즈를 찾을 수 없습니다."),
-    QUIZ_ANSWER_NOT_FOUND(HttpStatus.NOT_FOUND, "QUIZ-002", "퀴즈 답변을 찾을 수 없습니다.");
+    QUIZ_ANSWER_NOT_FOUND(HttpStatus.NOT_FOUND, "QUIZ-002", "퀴즈 답변을 찾을 수 없습니다."),
+    QUIZ_ALREADY_ANSWERED(HttpStatus.BAD_REQUEST, "QUIZ-003", "이미 답변한 퀴즈입니다.");
 
     private final HttpStatus status;
     private final String value;
