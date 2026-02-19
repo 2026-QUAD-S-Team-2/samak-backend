@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @Table(
         uniqueConstraints = {
                 @UniqueConstraint(
-                        columnNames = {"country_code", "snapshot_date"}
+                        columnNames = {"country_id", "snapshot_date"}
                 )
         }
 )
