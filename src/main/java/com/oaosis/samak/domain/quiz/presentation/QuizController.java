@@ -30,7 +30,7 @@ public class QuizController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    @Operation(summary = "퀴즈 답변 제출", description = "사용자가 입력한 퀴즈 답변을 저장하고 정답 여부를 반환합니다.")
+    @Operation(summary = "오늘의 퀴즈 답변 제출", description = "사용자 입력 퀴즈 답변 저장 및 정답 여부를 반환")
     @PostMapping("/answer")
     public ResponseEntity<ApiResponse<QuizAnswerResponse>> submitQuizAnswer(
             @AuthenticationPrincipal AuthenticatedUser user,
