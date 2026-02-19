@@ -29,7 +29,7 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private Role role;
 
-    @Column(name = "provider_id", nullable = false, length = 20)
+    @Column(name = "provider_id", nullable = false, length = 255)
     private String providerId;
 
     @Enumerated(EnumType.STRING)
