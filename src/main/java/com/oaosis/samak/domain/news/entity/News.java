@@ -20,9 +20,17 @@ public class News extends BaseTimeEntity {
     private String title;
 
     @Column(nullable = false, columnDefinition = "TEXT")
+    private String summary;
+
+    @Column(columnDefinition = "TEXT")
     private String link;
+
+    @Column
+    private String backgroundImageName;
 
     @Column(name = "country_code", nullable = false, length = 2)
     private String countryCode;
-}
 
+    @Column(name = "isActive", nullable = false)
+    private boolean isActive = true;
+}
