@@ -10,6 +10,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -56,9 +58,9 @@ public class AnalysisItem extends BaseTimeEntity {
     private String companyName;
 
     @Column
-    private Long salary;
+    private BigDecimal salary;
 
-    public AnalysisItem(Member member, ContactType contactType, String sourceUrl, String notes, Country country, City city, String companyName, Long salary) {
+    public AnalysisItem(Member member, ContactType contactType, String sourceUrl, String notes, Country country, City city, String companyName, BigDecimal salary) {
         this.member = member;
         this.contactType = contactType;
         this.sourceUrl = sourceUrl;

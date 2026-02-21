@@ -26,7 +26,7 @@ public record AnalysisItemDetailResponse(
         String companyName,
 
         @Schema(description = "제안 연봉", example = "3000000")
-        Long salary,
+        BigDecimal salary,
 
         @Schema(description = "생성 날짜")
         LocalDateTime createdAt
