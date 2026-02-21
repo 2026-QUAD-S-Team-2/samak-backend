@@ -31,7 +31,7 @@ public class QuizController {
     }
 
     @Operation(summary = "오늘의 퀴즈 답변 제출", description = "사용자 입력 퀴즈 답변 저장 및 정답 여부를 반환")
-    @PostMapping("/answer")
+    @PostMapping("/today/answer")
     public ResponseEntity<ApiResponse<QuizAnswerResponse>> submitQuizAnswer(
             @AuthenticationPrincipal AuthenticatedUser user,
             @RequestBody QuizAnswerRequest request
