@@ -48,6 +48,7 @@ public class AnalysisService {
     private final AIAnalysisResultRepository aiAnalysisResultRepository;
     private final CountryWarningRepository countryWarningRepository;
     private final CountryMetricsSnapshotRepository countryMetricsSnapshotRepository;
+    private final AIServerClient aiServerClient;
 
     public List<AnalysisItemListResponse> getAnalysisItemList(String email, SortType sortType) {
         Member member = getMember(email);
@@ -118,8 +119,9 @@ public class AnalysisService {
         CountryMetricsSnapshot countryMetricsSnapshot = countryMetricsSnapshotRepository.findTopByCountryOrderBySnapshotDateDesc(country)
                 .orElseThrow(() -> new CountryException(CountryErrorCode.COUNTRY_METRICS_NOT_FOUND));
 
-        //TODO: AI 분석 요청, 국가별 경고 메시지 생성 요청 로직 추가
-        AIAnalysisResult aiAnalysisResult = new AIAnalysisResult(analysisItem, 75, "HIGH", "분석 결과 요약 텍스트");
+        // AI 서버 분석 요청
+        AIAnalyzeResponse aiAnalyzeResponse = aiServerClient.analyzeImage(AIAnalyzeRequest.of(country, request.salary(), request.imageNames()));
+        AIAnalysisResult aiAnalysisResult = new AIAnalysisResult(analysisItem, aiAnalyzeResponse.riskScore(), aiAnalyzeResponse.riskLevel(), aiAnalyzeResponse.message());
         aiAnalysisResultRepository.save(aiAnalysisResult);
 
         String warningMessage = CountryMetricsMessageGenerator.generateMessage(country, countryMetricsSnapshot);

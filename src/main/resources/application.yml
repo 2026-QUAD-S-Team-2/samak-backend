@@ -10,11 +10,11 @@ spring:
   config:
     activate:
       on-profile: local
-    import: application-local.yml, application-swagger.yml, application-google.yml, application-s3.yml
+    import: application-local.yml, application-swagger.yml, application-google.yml, application-s3.yml, application-feign.yml
 
 ---
 spring:
   config:
     activate:
       on-profile: prod
-    import: application-prod.yml, application-swagger.yml, application-google.yml, application-s3.yml
+    import: application-prod.yml, application-swagger.yml, application-google.yml, application-s3.yml, application-feign.yml
