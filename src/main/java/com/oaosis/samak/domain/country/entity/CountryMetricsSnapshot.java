@@ -45,4 +45,13 @@ public class CountryMetricsSnapshot{
 
     @Column(name = "snapshot_date", nullable = false)
     private LocalDate snapshotDate;
+
+    public CountryMetricsSnapshot(Country country, BigDecimal minWage, WageUnit minWageUnit, BigDecimal medianIncome, BigDecimal avgIncome, LocalDate snapshotDate) {
+        this.country = country;
+        this.minWage = minWage;
+        this.minWageUnit = minWageUnit;
+        this.medianIncome = medianIncome;
+        this.avgIncome = avgIncome;
+        this.snapshotDate = snapshotDate;
+    }
 }

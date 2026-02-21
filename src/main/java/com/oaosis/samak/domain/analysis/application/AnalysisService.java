@@ -28,13 +28,18 @@ import com.oaosis.samak.domain.member.entity.Member;
 import com.oaosis.samak.domain.member.exception.MemberErrorCode;
 import com.oaosis.samak.domain.member.exception.MemberException;
 import com.oaosis.samak.domain.member.repository.MemberRepository;
+import com.oaosis.samak.infra.openFeign.ai.client.AIServerClient;
+import com.oaosis.samak.infra.openFeign.ai.dto.request.AIAnalyzeRequest;
+import com.oaosis.samak.infra.openFeign.ai.dto.response.AIAnalyzeResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -124,7 +129,8 @@ public class AnalysisService {
         AIAnalysisResult aiAnalysisResult = new AIAnalysisResult(analysisItem, aiAnalyzeResponse.riskScore(), aiAnalyzeResponse.riskLevel(), aiAnalyzeResponse.message());
         aiAnalysisResultRepository.save(aiAnalysisResult);
 
-        String warningMessage = CountryMetricsMessageGenerator.generateMessage(country, countryMetricsSnapshot);
+        // 국가 기반 경고 메시지 생성
+        String warningMessage = CountryMetricsMessageGenerator.generateMessage(country, countryMetricsSnapshot, request.salary());
         CountryWarning countryWarning = new CountryWarning(analysisItem, warningMessage);
 
         countryWarningRepository.save(countryWarning);
