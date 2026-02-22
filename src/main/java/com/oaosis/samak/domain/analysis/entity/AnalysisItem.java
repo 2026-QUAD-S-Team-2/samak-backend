@@ -1,5 +1,6 @@
 package com.oaosis.samak.domain.analysis.entity;
 
+import com.oaosis.samak.domain.analysis.enums.AnalysisStatus;
 import com.oaosis.samak.domain.member.entity.Member;
 import com.oaosis.samak.global.entity.BaseTimeEntity;
 import com.oaosis.samak.domain.country.entity.City;
@@ -60,6 +61,10 @@ public class AnalysisItem extends BaseTimeEntity {
     @Column
     private BigDecimal salary;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AnalysisStatus status = AnalysisStatus.PENDING;
+
     public AnalysisItem(Member member, ContactType contactType, String sourceUrl, String notes, Country country, City city, String companyName, BigDecimal salary) {
         this.member = member;
         this.contactType = contactType;
@@ -69,5 +74,10 @@ public class AnalysisItem extends BaseTimeEntity {
         this.city = city;
         this.companyName = companyName;
         this.salary = salary;
+        this.status = AnalysisStatus.PENDING;
+    }
+
+    public void updateStatus(AnalysisStatus status) {
+        this.status = status;
     }
 }

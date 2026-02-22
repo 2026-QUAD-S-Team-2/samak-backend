@@ -1,7 +1,7 @@
 package com.oaosis.samak.domain.analysis.dto.response;
 
 import com.oaosis.samak.domain.analysis.entity.AnalysisItem;
-import com.oaosis.samak.domain.analysis.enums.AnalysisItemType;
+import com.oaosis.samak.domain.analysis.enums.AnalysisStatus;
 import com.oaosis.samak.global.entity.ContactType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -28,6 +28,9 @@ public record AnalysisItemDetailResponse(
         @Schema(description = "제안 연봉", example = "3000000")
         BigDecimal salary,
 
+        @Schema(description = "분석 상태", example = "COMPLETED")
+        AnalysisStatus status,
+
         @Schema(description = "생성 날짜")
         LocalDateTime createdAt
 ) {
@@ -40,6 +43,7 @@ public record AnalysisItemDetailResponse(
                 item.getContactType(),
                 item.getCompanyName(),
                 item.getSalary() != null ? item.getSalary() : null,
+                item.getStatus(),
                 item.getCreatedAt()
         );
     }

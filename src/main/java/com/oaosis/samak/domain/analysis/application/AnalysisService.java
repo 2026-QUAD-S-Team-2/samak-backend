@@ -28,9 +28,7 @@ import com.oaosis.samak.domain.member.entity.Member;
 import com.oaosis.samak.domain.member.exception.MemberErrorCode;
 import com.oaosis.samak.domain.member.exception.MemberException;
 import com.oaosis.samak.domain.member.repository.MemberRepository;
-import com.oaosis.samak.infra.openFeign.ai.client.AIServerClient;
-import com.oaosis.samak.infra.openFeign.ai.dto.request.AIAnalyzeRequest;
-import com.oaosis.samak.infra.openFeign.ai.dto.response.AIAnalyzeResponse;
+import com.oaosis.samak.infra.s3.service.S3UrlBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -51,9 +49,10 @@ public class AnalysisService {
     private final CityRepository cityRepository;
     private final AnalysisImageRepository analysisImageRepository;
     private final AIAnalysisResultRepository aiAnalysisResultRepository;
-    private final CountryWarningRepository countryWarningRepository;
+    private final AsyncAnalysisService asyncAnalysisService;
     private final CountryMetricsSnapshotRepository countryMetricsSnapshotRepository;
-    private final AIServerClient aiServerClient;
+    private final CountryWarningRepository countryWarningRepository;
+    private final S3UrlBuilder s3UrlBuilder;
 
     public List<AnalysisItemListResponse> getAnalysisItemList(String email, SortType sortType) {
         Member member = getMember(email);
@@ -103,6 +102,7 @@ public class AnalysisService {
         Country country = getCountry(request);
         City city = getCity(request);
 
+        // 분석 아이템 생성 (PENDING)
         AnalysisItem analysisItem = new AnalysisItem(
                 member,
                 request.contactType(),
@@ -114,26 +114,40 @@ public class AnalysisService {
                 request.salary()
         );
 
+        // 분석 이미지 리스트 생성
         List<AnalysisImage> images = request.imageNames().stream()
                 .map(i -> new AnalysisImage(analysisItem, i))
                 .toList();
 
         analysisItemRepository.save(analysisItem);
+        analysisItemRepository.flush(); // DB 즉시 반영
         analysisImageRepository.saveAll(images);
 
-        CountryMetricsSnapshot countryMetricsSnapshot = countryMetricsSnapshotRepository.findTopByCountryOrderBySnapshotDateDesc(country)
+        // 국가 기반 경고 메시지 생성
+        CountryMetricsSnapshot countryMetricsSnapshot = countryMetricsSnapshotRepository
+                .findTopByCountryOrderBySnapshotDateDesc(country)
                 .orElseThrow(() -> new CountryException(CountryErrorCode.COUNTRY_METRICS_NOT_FOUND));
 
-        // AI 서버 분석 요청
-        AIAnalyzeResponse aiAnalyzeResponse = aiServerClient.analyzeImage(AIAnalyzeRequest.of(country, request.salary(), request.imageNames()));
-        AIAnalysisResult aiAnalysisResult = new AIAnalysisResult(analysisItem, aiAnalyzeResponse.riskScore(), aiAnalyzeResponse.riskLevel(), aiAnalyzeResponse.message());
-        aiAnalysisResultRepository.save(aiAnalysisResult);
+        String warningMessage = CountryMetricsMessageGenerator.generateMessage(
+                country,
+                countryMetricsSnapshot,
+                request.salary()
+        );
 
-        // 국가 기반 경고 메시지 생성
-        String warningMessage = CountryMetricsMessageGenerator.generateMessage(country, countryMetricsSnapshot, request.salary());
         CountryWarning countryWarning = new CountryWarning(analysisItem, warningMessage);
-
         countryWarningRepository.save(countryWarning);
+
+        List<String> imageUrls = images.stream()
+                .map(i -> s3UrlBuilder.buildImageUrl(i.getImageName()))
+                .toList();
+
+        // AI 분석 비동기 처리
+        asyncAnalysisService.processAIAnalysisAfterCommit(
+                analysisItem.getId(),
+                country,
+                request.salary(),
+                imageUrls
+        );
 
         return AnalysisItemDetailResponse.of(analysisItem);
     }

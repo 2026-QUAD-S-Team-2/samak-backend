@@ -1,12 +1,12 @@
 package com.oaosis.samak.domain.analysis.dto.response;
 
 import com.oaosis.samak.domain.analysis.entity.AnalysisItem;
+import com.oaosis.samak.domain.analysis.enums.AnalysisStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Schema(description = "분석 아이템 목록 응답")
+@Schema
 public record AnalysisItemListResponse(
         @Schema(description = "분석 아이템 ID", example = "1")
         Long id,
@@ -16,6 +16,9 @@ public record AnalysisItemListResponse(
 
         @Schema(description = "국가 코드", example = "KR")
         String countryCode,
+
+        @Schema(description = "분석 상태", example = "COMPLETED")
+        AnalysisStatus status,
 
         @Schema(description = "생성 날짜")
         LocalDateTime createdAt,
@@ -28,6 +31,7 @@ public record AnalysisItemListResponse(
                 item.getId(),
                 item.getCompanyName(),
                 item.getCountry().getCode(),
+                item.getStatus(),
                 item.getCreatedAt(),
                 score
         );

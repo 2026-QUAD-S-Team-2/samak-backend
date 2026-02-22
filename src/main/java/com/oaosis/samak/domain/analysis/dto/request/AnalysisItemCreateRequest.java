@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public record AnalysisItemCreateRequest(
-        @Schema(description = "이미지 파일명 목록", example = "[\"https://samak-bucket.s3.ap-northeast-2.amazonaws.com/e7dff159-8e4c-4b0a-a7c3-6721ef72e4d7.jpg\"]")
+        @Schema(description = "이미지 파일명 목록", example = "[\"e7dff159-8e4c-4b0a-a7c3-6721ef72e4d7.jpg\"]")
         List<String> imageNames,
         @Schema(description = "회사명", example = "열매나눔인터내셔널")
         String companyName,

@@ -23,19 +23,27 @@ public class AIAnalysisResult extends BaseTimeEntity {
     @JoinColumn(name = "analysis_item_id", nullable = false)
     private AnalysisItem analysisItem;
 
-    @Column(name = "risk_score", nullable = false)
+    @Column(name = "risk_score")
     private int riskScore;
 
-    @Column(name="risk_level", nullable = false)
+    @Column(name="risk_level")
     private String riskLevel;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(columnDefinition = "TEXT")
     private String message;
+
+    @Column(name="error_message", columnDefinition = "TEXT")
+    private String errorMessage;
 
     public AIAnalysisResult(AnalysisItem analysisItem, int riskScore, String riskLevel, String message) {
         this.analysisItem = analysisItem;
         this.riskScore = riskScore;
         this.riskLevel = riskLevel;
         this.message = message;
+    }
+
+    public AIAnalysisResult(AnalysisItem analysisItem, String errorMessage) {
+        this.analysisItem = analysisItem;
+        this.errorMessage = errorMessage;
     }
 }
