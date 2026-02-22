@@ -21,7 +21,7 @@ public record AIAnalyzeRequest(
         String salaryText
 ) {
         public static AIAnalyzeRequest of(Country country, BigDecimal salary, List<String> imageUrls) {
-                if (salary == null) {
+                if (salary == null || salary.compareTo(BigDecimal.ZERO) <= 0) {
                         return new AIAnalyzeRequest(country.getCode(), false, imageUrls, null);
                 }
 
