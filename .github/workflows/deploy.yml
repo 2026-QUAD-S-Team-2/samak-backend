@@ -1,0 +1,66 @@
+name: Build and Deploy Spring Boot Docker App
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Create application config files
+        run: |
+          mkdir -p src/main/resources
+          echo "${{ secrets.APPLICATION_PROD_YML }}" > src/main/resources/application-prod.yml
+          echo "${{ secrets.APPLICATION_SWAGGER_YML }}" > src/main/resources/application-swagger.yml
+          echo "${{ secrets.APPLICATION_FEIGN_YML }}" > src/main/resources/application-feign.yml
+          echo "${{ secrets.APPLICATION_GOOGLE_YML }}" > src/main/resources/application-google.yml
+          echo "${{ secrets.APPLICATION_S3_YML }}" > src/main/resources/application-s3.yml
+
+      - name: Grant execute permission for Gradle
+        run: chmod +x ./gradlew
+
+      - name: Build Spring Boot JAR
+        run: ./gradlew clean build -x test
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        run: |
+          IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPO }}:latest
+          docker build -t $IMAGE .
+          docker push $IMAGE
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2 with docker-compose
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker compose pull
+            docker compose up -d
+            docker image prune -f
