@@ -13,12 +13,12 @@ public record AnalysisItemListResponse(
 
         @Schema(description = "회사명", example = "ABC Company")
         String companyName,
-        
-        @Schema(description = "국가명", example = "대한민국")
-        String countryName,
 
-        @Schema(description = "지역명", example = "서울특별시")
-        String cityName,
+        @Schema(description = "국가 코드", example = "KR")
+        String countryCode,
+
+        @Schema(description = "지역 ID", example = "1")
+        Long cityId,
 
         @Schema(description = "분석 상태", example = "COMPLETED")
         AnalysisStatus status,
@@ -33,8 +33,8 @@ public record AnalysisItemListResponse(
         return new AnalysisItemListResponse(
                 item.getId(),
                 item.getCompanyName(),
-                item.getCountry().getName(),
-                item.getCity().getName(),
+                item.getCountry().getCode(),
+                item.getCity().getId(),
                 item.getStatus(),
                 item.getCreatedAt(),
                 score

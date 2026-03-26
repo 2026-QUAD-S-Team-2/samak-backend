@@ -10,10 +10,11 @@ Thumbs.db
 *.log
 *.tmp
 
-docker-compose.yml
-
 application-*.yml
 
 ADMIN-API-DEVELOPMENT.md
 
 bin/
+
+deploy.sh
+docker-compose-*.yml
