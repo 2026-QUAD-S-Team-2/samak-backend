@@ -1,12 +1,10 @@
-package com.oaosis.samak.infra.openFeign.ai.dto.response;
+package com.oaosis.samak.infra.rabbitMQ.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.oaosis.samak.domain.analysis.entity.AIAnalysisResult;
-import com.oaosis.samak.domain.analysis.entity.AnalysisItem;
 
 import java.util.List;
 
-public record AIAnalyzeResponse(
+public record AnalysisResponse(
         @JsonProperty("analysisId")
         String analysisId,
 
@@ -28,13 +26,4 @@ public record AIAnalyzeResponse(
         @JsonProperty("message")
         String message
 ) {
-
-        public static AIAnalysisResult toEntity(AnalysisItem analysisItem, AIAnalyzeResponse response) {
-                return new AIAnalysisResult(
-                        analysisItem,
-                        response.riskScore(),
-                        response.riskLevel(),
-                        response.message()
-                );
-        }
 }

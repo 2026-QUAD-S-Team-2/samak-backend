@@ -28,6 +28,7 @@ import com.oaosis.samak.domain.member.entity.Member;
 import com.oaosis.samak.domain.member.exception.MemberErrorCode;
 import com.oaosis.samak.domain.member.exception.MemberException;
 import com.oaosis.samak.domain.member.repository.MemberRepository;
+import com.oaosis.samak.infra.rabbitMQ.service.AsyncAnalysisService;
 import com.oaosis.samak.infra.s3.service.S3UrlBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -142,9 +143,8 @@ public class AnalysisService {
                 .toList();
 
         // AI 분석 비동기 처리
-        asyncAnalysisService.processAIAnalysisAfterCommit(
-                analysisItem.getId(),
-                country,
+        asyncAnalysisService.processAnalysisRequest(
+                analysisItem,
                 request.salary(),
                 imageUrls
         );

@@ -21,24 +21,30 @@ public class RabbitMQProperties {
     @Getter
     @Setter
     public static class Exchange {
-        private String analysis;
+        private String analysisRequest;
+        private String analysisResult;
         private String analysisRetry;
-        private String analysisDLX;
+        private String analysisRequestDLX;
+        private String analysisResultDLX;
     }
 
     @Getter
     @Setter
     public static class Queue {
-        private String analysis;
+        private String analysisRequest;
+        private String analysisResult;
         private String analysisRetry;
-        private String analysisDLQ;
+        private String analysisRequestDLQ;
+        private  String analysisResultDLQ;
     }
 
     @Getter
     @Setter
     public static class RoutingKey {
-        private String analysis;
+        private String analysisRequest;
+        private String analysisResult;
         private String analysisRetry;
-        private String analysisDLQ;
+        private String analysisRequestDLQ;
+        private String analysisResultDLQ;
     }
 }
