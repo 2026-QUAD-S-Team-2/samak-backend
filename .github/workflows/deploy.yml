@@ -30,6 +30,7 @@ jobs:
           echo "${{ secrets.APPLICATION_FEIGN_YML }}" > src/main/resources/application-feign.yml
           echo "${{ secrets.APPLICATION_GOOGLE_YML }}" > src/main/resources/application-google.yml
           echo "${{ secrets.APPLICATION_S3_YML }}" > src/main/resources/application-s3.yml
+          echo "${{ secrets.APPLICATION_MQ_YML }}" > src/main/resources/application-rabbitmq.yml
 
       - name: Grant execute permission for Gradle
         run: chmod +x ./gradlew
