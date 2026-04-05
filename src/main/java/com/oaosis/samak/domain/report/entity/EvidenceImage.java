@@ -3,6 +3,7 @@ package com.oaosis.samak.domain.report.entity;
 import com.oaosis.samak.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,5 +23,10 @@ public class EvidenceImage extends BaseTimeEntity {
 
     @Column(name = "image_name", nullable = false)
     private String imageName;
-}
 
+    @Builder
+    public EvidenceImage(Report report, String imageName) {
+        this.report = report;
+        this.imageName = imageName;
+    }
+}

@@ -4,6 +4,7 @@ import com.oaosis.samak.global.entity.ContactType;
 import com.oaosis.samak.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -27,4 +28,11 @@ public class ReportIdentifier extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String value;
+
+    @Builder
+    public ReportIdentifier(Report report, ContactType type, String value) {
+        this.report = report;
+        this.type = type;
+        this.value = value;
+    }
 }
