@@ -1,11 +1,16 @@
 package com.oaosis.samak.domain.board.application;
 
+import com.oaosis.samak.domain.board.dto.request.CommentCreateRequest;
 import com.oaosis.samak.domain.board.dto.request.FraudVoteRequest;
 import com.oaosis.samak.domain.board.dto.request.PostCreateRequest;
+import com.oaosis.samak.domain.board.dto.response.CommentCreateResponse;
+import com.oaosis.samak.domain.board.dto.response.CommentResponse;
 import com.oaosis.samak.domain.board.dto.response.FraudVoteResponse;
 import com.oaosis.samak.domain.board.dto.response.PostCreateResponse;
 import com.oaosis.samak.domain.board.dto.response.PostDetailResponse;
 import com.oaosis.samak.domain.board.dto.response.PostListResponse;
+import com.oaosis.samak.domain.board.dto.response.ReplyResponse;
+import com.oaosis.samak.domain.board.entity.Comment;
 import com.oaosis.samak.domain.board.entity.FraudVote;
 import com.oaosis.samak.domain.board.entity.Post;
 import com.oaosis.samak.domain.board.entity.PostImage;
@@ -32,6 +37,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -133,6 +140,71 @@ public class BoardService {
         long notFraudCount = fraudVoteRepository.countByPostIdAndVoteType(postId, VoteType.NOT_FRAUD);
 
         return FraudVoteResponse.of(postId, fraudCount, notFraudCount);
+    }
+
+    public List<CommentResponse> getComments(Long postId) {
+        if (!postRepository.existsById(postId)) {
+            throw new BoardException(BoardErrorCode.POST_NOT_FOUND);
+        }
+
+        List<Comment> topLevel = commentRepository.findTopLevelCommentsByPostId(postId);
+        if (topLevel.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> parentIds = topLevel.stream().map(Comment::getId).toList();
+        Map<Long, List<ReplyResponse>> repliesMap = commentRepository.findRepliesByParentIdIn(parentIds)
+                .stream()
+                .collect(Collectors.groupingBy(
+                        reply -> reply.getParentComment().getId(),
+                        Collectors.mapping(ReplyResponse::from, Collectors.toList())
+                ));
+
+        return topLevel.stream()
+                .map(comment -> CommentResponse.of(comment, repliesMap.getOrDefault(comment.getId(), List.of())))
+                .toList();
+    }
+
+    @Transactional
+    public CommentCreateResponse createComment(Long postId, String email, CommentCreateRequest request) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BoardException(BoardErrorCode.POST_NOT_FOUND));
+
+        Member author = getMember(email);
+
+        Comment comment = Comment.builder()
+                .post(post)
+                .author(author)
+                .content(request.content())
+                .build();
+        commentRepository.save(comment);
+
+        return CommentCreateResponse.from(comment);
+    }
+
+    @Transactional
+    public CommentCreateResponse createReply(Long postId, Long commentId, String email, CommentCreateRequest request) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BoardException(BoardErrorCode.POST_NOT_FOUND));
+
+        Comment parentComment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new BoardException(BoardErrorCode.COMMENT_NOT_FOUND));
+
+        if (parentComment.getParentComment() != null) {
+            throw new BoardException(BoardErrorCode.REPLY_DEPTH_EXCEEDED);
+        }
+
+        Member author = getMember(email);
+
+        Comment reply = Comment.builder()
+                .post(post)
+                .author(author)
+                .parentComment(parentComment)
+                .content(request.content())
+                .build();
+        commentRepository.save(reply);
+
+        return CommentCreateResponse.from(reply);
     }
 
     @Transactional

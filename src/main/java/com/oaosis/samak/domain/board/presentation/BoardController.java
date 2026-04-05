@@ -1,8 +1,11 @@
 package com.oaosis.samak.domain.board.presentation;
 
 import com.oaosis.samak.domain.board.application.BoardService;
+import com.oaosis.samak.domain.board.dto.request.CommentCreateRequest;
 import com.oaosis.samak.domain.board.dto.request.FraudVoteRequest;
 import com.oaosis.samak.domain.board.dto.request.PostCreateRequest;
+import com.oaosis.samak.domain.board.dto.response.CommentCreateResponse;
+import com.oaosis.samak.domain.board.dto.response.CommentResponse;
 import com.oaosis.samak.domain.board.dto.response.FraudVoteResponse;
 import com.oaosis.samak.domain.board.dto.response.PostCreateResponse;
 import com.oaosis.samak.domain.board.dto.response.PostDetailResponse;
@@ -19,6 +22,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "게시판", description = "게시판 관련 API")
 @RestController
@@ -81,6 +86,42 @@ public class BoardController {
             @PathVariable Long postId
     ) {
         FraudVoteResponse response = boardService.getFraudVoteResult(postId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @Operation(summary = "댓글/대댓글 목록 조회")
+    @GetMapping("/posts/{postId}/comments")
+    public ResponseEntity<ApiResponse<List<CommentResponse>>> getComments(
+            @Parameter(description = "게시글 ID", required = true)
+            @PathVariable Long postId
+    ) {
+        List<CommentResponse> response = boardService.getComments(postId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @Operation(summary = "댓글 작성")
+    @PostMapping("/posts/{postId}/comments")
+    public ResponseEntity<ApiResponse<CommentCreateResponse>> createComment(
+            @Parameter(description = "게시글 ID", required = true)
+            @PathVariable Long postId,
+            @AuthenticationPrincipal AuthenticatedUser user,
+            @Valid @RequestBody CommentCreateRequest request
+    ) {
+        CommentCreateResponse response = boardService.createComment(postId, user.getEmail(), request);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @Operation(summary = "대댓글 작성")
+    @PostMapping("/posts/{postId}/comments/{commentId}/replies")
+    public ResponseEntity<ApiResponse<CommentCreateResponse>> createReply(
+            @Parameter(description = "게시글 ID", required = true)
+            @PathVariable Long postId,
+            @Parameter(description = "부모 댓글 ID", required = true)
+            @PathVariable Long commentId,
+            @AuthenticationPrincipal AuthenticatedUser user,
+            @Valid @RequestBody CommentCreateRequest request
+    ) {
+        CommentCreateResponse response = boardService.createReply(postId, commentId, user.getEmail(), request);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

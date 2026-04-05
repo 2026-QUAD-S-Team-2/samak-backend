@@ -26,13 +26,18 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "author_id", nullable = false)
     private Member author;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_comment_id")
+    private Comment parentComment;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
     @Builder
-    public Comment(Post post, Member author, String content) {
+    public Comment(Post post, Member author, Comment parentComment, String content) {
         this.post = post;
         this.author = author;
+        this.parentComment = parentComment;
         this.content = content;
     }
 }
