@@ -6,6 +6,7 @@ import com.oaosis.samak.domain.member.exception.MemberException;
 import com.oaosis.samak.domain.member.repository.MemberRepository;
 import com.oaosis.samak.domain.report.dto.request.ReportCreateRequest;
 import com.oaosis.samak.domain.report.dto.response.ReportCreateResponse;
+import com.oaosis.samak.domain.report.dto.response.ReportHistoryResponse;
 import com.oaosis.samak.domain.report.dto.response.ReportListResponse;
 import com.oaosis.samak.domain.report.entity.EvidenceImage;
 import com.oaosis.samak.domain.report.entity.Report;
@@ -20,6 +21,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 @Service
@@ -83,6 +86,23 @@ public class ReportService {
         return sortType == ReportSortType.LATEST
                 ? reportRepository.findByIdentifierOrderByLatest(contactType, keyword)
                 : reportRepository.findByIdentifierOrderByCount(contactType, keyword);
+    }
+
+    public List<ReportHistoryResponse> getReportHistory(
+            String companyName, ContactType identifierType, String identifierValue) {
+        LinkedHashSet<ReportHistoryResponse> merged = new LinkedHashSet<>();
+
+        if (companyName != null && !companyName.isBlank()) {
+            merged.addAll(reportRepository.findHistoryByCompanyName(companyName));
+        }
+
+        if (identifierType != null && identifierValue != null && !identifierValue.isBlank()) {
+            merged.addAll(reportRepository.findHistoryByIdentifier(identifierType, identifierValue));
+        }
+
+        return merged.stream()
+                .sorted(Comparator.comparing(ReportHistoryResponse::reportedAt).reversed())
+                .toList();
     }
 
     private Member getMember(String email) {

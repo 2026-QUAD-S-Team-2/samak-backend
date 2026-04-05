@@ -3,9 +3,11 @@ package com.oaosis.samak.domain.report.presentation;
 import com.oaosis.samak.domain.report.application.ReportService;
 import com.oaosis.samak.domain.report.dto.request.ReportCreateRequest;
 import com.oaosis.samak.domain.report.dto.response.ReportCreateResponse;
+import com.oaosis.samak.domain.report.dto.response.ReportHistoryResponse;
 import com.oaosis.samak.domain.report.dto.response.ReportListResponse;
 import com.oaosis.samak.domain.report.enums.ReportSearchType;
 import com.oaosis.samak.domain.report.enums.ReportSortType;
+import com.oaosis.samak.global.entity.ContactType;
 import com.oaosis.samak.global.response.ApiResponse;
 import com.oaosis.samak.global.security.entity.AuthenticatedUser;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,6 +39,21 @@ public class ReportController {
             @RequestParam String keyword
     ) {
         List<ReportListResponse> responses = reportService.getReportList(searchType, sortType, keyword);
+        return ResponseEntity.ok(ApiResponse.success(responses));
+    }
+
+    @Operation(summary = "신고 이력 조회",
+            description = "채용 공고 분석 조회 시 사용되는 신고 이력 조회입니다.")
+    @GetMapping("/history")
+    public ResponseEntity<ApiResponse<List<ReportHistoryResponse>>> getReportHistory(
+            @Parameter(description = "회사명", example = "ABC Corporation")
+            @RequestParam(required = false) String companyName,
+            @Parameter(description = "식별자 종류", example = "TELEGRAM")
+            @RequestParam(required = false) ContactType identifierType,
+            @Parameter(description = "식별자 값", example = "@abc_corp")
+            @RequestParam(required = false) String identifierValue
+    ) {
+        List<ReportHistoryResponse> responses = reportService.getReportHistory(companyName, identifierType, identifierValue);
         return ResponseEntity.ok(ApiResponse.success(responses));
     }
 
