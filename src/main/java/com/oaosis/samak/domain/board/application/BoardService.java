@@ -9,6 +9,7 @@ import com.oaosis.samak.domain.board.dto.response.PostListResponse;
 import com.oaosis.samak.domain.board.entity.FraudVote;
 import com.oaosis.samak.domain.board.entity.Post;
 import com.oaosis.samak.domain.board.entity.PostImage;
+import com.oaosis.samak.domain.board.entity.PostScrap;
 import com.oaosis.samak.domain.board.entity.enums.PostCategory;
 import com.oaosis.samak.domain.board.entity.enums.VoteType;
 import com.oaosis.samak.global.response.CursorResponse;
@@ -19,6 +20,7 @@ import com.oaosis.samak.domain.board.repository.FraudVoteRepository;
 import com.oaosis.samak.domain.board.repository.PostImageRepository;
 import com.oaosis.samak.domain.board.repository.PostLikeRepository;
 import com.oaosis.samak.domain.board.repository.PostRepository;
+import com.oaosis.samak.domain.board.repository.PostScrapRepository;
 import com.oaosis.samak.domain.member.entity.Member;
 import com.oaosis.samak.domain.member.exception.MemberErrorCode;
 import com.oaosis.samak.domain.member.exception.MemberException;
@@ -41,6 +43,7 @@ public class BoardService {
     private final PostLikeRepository postLikeRepository;
     private final CommentRepository commentRepository;
     private final FraudVoteRepository fraudVoteRepository;
+    private final PostScrapRepository postScrapRepository;
     private final MemberRepository memberRepository;
     private final S3UrlBuilder s3UrlBuilder;
 
@@ -130,6 +133,33 @@ public class BoardService {
         long notFraudCount = fraudVoteRepository.countByPostIdAndVoteType(postId, VoteType.NOT_FRAUD);
 
         return FraudVoteResponse.of(postId, fraudCount, notFraudCount);
+    }
+
+    @Transactional
+    public void addScrap(Long postId, String email) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BoardException(BoardErrorCode.POST_NOT_FOUND));
+
+        Member member = getMember(email);
+
+        if (postScrapRepository.existsByPostIdAndMemberId(postId, member.getId())) {
+            throw new BoardException(BoardErrorCode.DUPLICATE_SCRAP);
+        }
+
+        postScrapRepository.save(PostScrap.builder()
+                .post(post)
+                .member(member)
+                .build());
+    }
+
+    @Transactional
+    public void removeScrap(Long postId, String email) {
+        Member member = getMember(email);
+
+        PostScrap scrap = postScrapRepository.findByPostIdAndMemberId(postId, member.getId())
+                .orElseThrow(() -> new BoardException(BoardErrorCode.SCRAP_NOT_FOUND));
+
+        postScrapRepository.delete(scrap);
     }
 
     private Member getMember(String email) {

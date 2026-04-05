@@ -83,4 +83,26 @@ public class BoardController {
         FraudVoteResponse response = boardService.getFraudVoteResult(postId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
+
+    @Operation(summary = "게시글 스크랩 추가")
+    @PostMapping("/posts/{postId}/scrap")
+    public ResponseEntity<ApiResponse<Void>> addScrap(
+            @Parameter(description = "게시글 ID", required = true)
+            @PathVariable Long postId,
+            @AuthenticationPrincipal AuthenticatedUser user
+    ) {
+        boardService.addScrap(postId, user.getEmail());
+        return ResponseEntity.ok(ApiResponse.success());
+    }
+
+    @Operation(summary = "게시글 스크랩 취소")
+    @DeleteMapping("/posts/{postId}/scrap")
+    public ResponseEntity<ApiResponse<Void>> removeScrap(
+            @Parameter(description = "게시글 ID", required = true)
+            @PathVariable Long postId,
+            @AuthenticationPrincipal AuthenticatedUser user
+    ) {
+        boardService.removeScrap(postId, user.getEmail());
+        return ResponseEntity.ok(ApiResponse.success());
+    }
 }

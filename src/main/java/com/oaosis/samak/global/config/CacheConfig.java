@@ -26,6 +26,7 @@ public class CacheConfig {
 
         createCacheIfNotExists(cacheManager, "quizzes", config);
         createCacheIfNotExists(cacheManager, "news", config);
+        createCacheIfNotExists(cacheManager, "guides", config);
 
         return new JCacheCacheManager(cacheManager);
     }
