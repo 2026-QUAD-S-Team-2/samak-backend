@@ -32,7 +32,7 @@ public class RabbitMQConfig {
     public Queue analysisRequestQueue() {
         return QueueBuilder.durable(rabbitMQProperties.getQueue().getAnalysisRequest())
                 .withArgument(DEAD_LETTER_EXCHANGE, rabbitMQProperties.getExchange().getAnalysisRequestDLX())
-                .withArgument(DEAD_LETTER_KEY, rabbitMQProperties.getRoutingKey().getAnalysisRequestDLQ())
+                .withArgument(DEAD_LETTER_KEY, rabbitMQProperties.getRoutingKey().getAnalysisRequestDLR())
                 .build();
     }
 
@@ -85,7 +85,7 @@ public class RabbitMQConfig {
         return BindingBuilder
                 .bind(analysisRequestDLQ())
                 .to(analysisRequestDLX())
-                .with(rabbitMQProperties.getRoutingKey().getAnalysisRequestDLQ());
+                .with(rabbitMQProperties.getRoutingKey().getAnalysisRequestDLR());
     }
 
     // === Analysis Result DLX & DLQ Configuration ===
@@ -104,7 +104,7 @@ public class RabbitMQConfig {
         return BindingBuilder
                 .bind(analysisResultDLQ())
                 .to(analysisResultDLX())
-                .with(rabbitMQProperties.getRoutingKey().getAnalysisResultDLQ());
+                .with(rabbitMQProperties.getRoutingKey().getAnalysisResultDLR());
     }
 
 
@@ -118,7 +118,7 @@ public class RabbitMQConfig {
     public Queue analysisResultQueue() {
         return QueueBuilder.durable(rabbitMQProperties.getQueue().getAnalysisResult())
                 .withArgument(DEAD_LETTER_EXCHANGE, rabbitMQProperties.getExchange().getAnalysisResultDLX())
-                .withArgument(DEAD_LETTER_KEY, rabbitMQProperties.getRoutingKey().getAnalysisResultDLQ())
+                .withArgument(DEAD_LETTER_KEY, rabbitMQProperties.getRoutingKey().getAnalysisResultDLR())
                 .build();
     }
 

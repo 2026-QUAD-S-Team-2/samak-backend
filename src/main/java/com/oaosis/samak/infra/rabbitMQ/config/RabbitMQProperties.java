@@ -44,7 +44,7 @@ public class RabbitMQProperties {
         private String analysisRequest;
         private String analysisResult;
         private String analysisRetry;
-        private String analysisRequestDLQ;
-        private String analysisResultDLQ;
+        private String analysisRequestDLR;
+        private String analysisResultDLR;
     }
 }
