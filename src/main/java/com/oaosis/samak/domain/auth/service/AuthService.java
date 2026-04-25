@@ -11,6 +11,8 @@ import com.oaosis.samak.global.security.dto.TokenResponse;
 import com.oaosis.samak.global.security.jwt.JwtTokenProvider;
 import com.oaosis.samak.global.security.oauth2.service.OAuth2AuthenticationService;
 import com.oaosis.samak.infra.redis.service.RedisService;
+import com.oaosis.samak.infra.s3.service.AmazonS3Service;
+import com.oaosis.samak.infra.s3.service.S3UrlBuilder;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,8 @@ public class AuthService {
     private final RedisService redisService;
     private final JwtTokenProvider jwtTokenProvider;
     private final OAuth2AuthenticationService oauth2AuthenticationService;
+    private final AmazonS3Service amazonS3Service;
+    private final S3UrlBuilder s3UrlBuilder;
     private final MemberRepository memberRepository;
 
     public TokenResponse loginWithOAuth2(OAuth2Provider provider, String idToken) {
@@ -32,12 +36,13 @@ public class AuthService {
 
         Member member = memberRepository.findByProviderId(userInfo.getProviderId())
                 .orElseGet(() -> {
+                    String profileImageName = amazonS3Service.uploadImageFromUrl(userInfo.getImageUrl());
                     Member newMember = Member.builder()
                             .role(Role.MEMBER)
                             .provider(provider)
                             .providerId(userInfo.getProviderId())
                             .email(userInfo.getEmail())
-                            .profileImageName(userInfo.getImageUrl())
+                            .profileImageName(profileImageName)
                             .nickname(userInfo.getName())
                             .build();
                     return memberRepository.save(newMember);

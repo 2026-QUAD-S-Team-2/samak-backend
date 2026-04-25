@@ -16,12 +16,12 @@ public record MemberResponse(
         @Schema(description = "온보딩 완료 여부", example = "true")
         boolean isOnboarded
 ) {
-    public static MemberResponse from(Member member) {
+    public static MemberResponse from(Member member, String profileImageUrl) {
         return new MemberResponse(
                 member.getId(),
                 member.getEmail(),
                 member.getNickname(),
-                member.getProfileImageName(),
+                profileImageUrl,
                 member.isOnboarded()
         );
     }
