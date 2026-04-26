@@ -29,7 +29,7 @@ import com.oaosis.samak.domain.member.exception.MemberErrorCode;
 import com.oaosis.samak.domain.member.exception.MemberException;
 import com.oaosis.samak.domain.member.repository.MemberRepository;
 import com.oaosis.samak.infra.rabbitMQ.service.AsyncAnalysisService;
-import com.oaosis.samak.infra.s3.service.S3UrlBuilder;
+import com.oaosis.samak.infra.gcs.service.GcsUrlBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -53,7 +53,7 @@ public class AnalysisService {
     private final AsyncAnalysisService asyncAnalysisService;
     private final CountryMetricsSnapshotRepository countryMetricsSnapshotRepository;
     private final CountryWarningRepository countryWarningRepository;
-    private final S3UrlBuilder s3UrlBuilder;
+    private final GcsUrlBuilder gcsUrlBuilder;
 
     public List<AnalysisItemListResponse> getAnalysisItemList(String email, SortType sortType) {
         Member member = getMember(email);
@@ -139,7 +139,7 @@ public class AnalysisService {
         countryWarningRepository.save(countryWarning);
 
         List<String> imageUrls = images.stream()
-                .map(i -> s3UrlBuilder.buildImageUrl(i.getImageName()))
+                .map(i -> gcsUrlBuilder.buildImageUrl(i.getImageName()))
                 .toList();
 
         // AI 분석 비동기 처리

@@ -19,6 +19,7 @@ repositories {
 dependencyManagement {
 	imports {
 		mavenBom "org.springframework.cloud:spring-cloud-dependencies:2023.0.1"
+		mavenBom "com.google.cloud:libraries-bom:26.44.0"
 	}
 }
 
@@ -47,8 +48,8 @@ dependencies {
 	implementation 'javax.cache:cache-api:1.1.1'
 	//redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	//s3
-	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+	//gcs
+	implementation 'com.google.cloud:google-cloud-storage'
 	//openfeign
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 	//rabbitmq

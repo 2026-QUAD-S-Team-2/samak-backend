@@ -1,4 +1,4 @@
-package com.oaosis.samak.infra.s3.service;
+package com.oaosis.samak.infra.gcs.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,14 +11,13 @@ import java.util.List;
 @Transactional
 @Service
 public class ImageService {
-
-    private final AmazonS3Service amazonS3Service;
+    private final GcsService gcsService;
 
     public String uploadImage(MultipartFile multipartFile) {
-        return amazonS3Service.uploadImage(multipartFile);
+        return gcsService.uploadImage(multipartFile);
     }
 
     public List<String> uploadImages(List<MultipartFile> multipartFiles) {
-        return amazonS3Service.uploadImages(multipartFiles);
+        return gcsService.uploadImages(multipartFiles);
     }
 }

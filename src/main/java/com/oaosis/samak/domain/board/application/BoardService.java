@@ -30,7 +30,7 @@ import com.oaosis.samak.domain.member.entity.Member;
 import com.oaosis.samak.domain.member.exception.MemberErrorCode;
 import com.oaosis.samak.domain.member.exception.MemberException;
 import com.oaosis.samak.domain.member.repository.MemberRepository;
-import com.oaosis.samak.infra.s3.service.S3UrlBuilder;
+import com.oaosis.samak.infra.gcs.service.GcsUrlBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -52,7 +52,7 @@ public class BoardService {
     private final FraudVoteRepository fraudVoteRepository;
     private final PostScrapRepository postScrapRepository;
     private final MemberRepository memberRepository;
-    private final S3UrlBuilder s3UrlBuilder;
+    private final GcsUrlBuilder gcsUrlBuilder;
 
     @Transactional
     public PostCreateResponse createPost(String email, PostCreateRequest request) {
@@ -103,7 +103,7 @@ public class BoardService {
         long likeCount = postLikeRepository.countByPostId(postId);
         long commentCount = commentRepository.countByPostId(postId);
         List<String> imageUrls = postImageRepository.findAllByPost(post).stream()
-                .map(img -> s3UrlBuilder.buildImageUrl(img.getImageName()))
+                .map(img -> gcsUrlBuilder.buildImageUrl(img.getImageName()))
                 .toList();
 
         return PostDetailResponse.of(post, likeCount, commentCount, imageUrls);
