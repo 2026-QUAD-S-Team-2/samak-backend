@@ -1,0 +1,15 @@
+cloud:
+  gcs:
+    project-id: ${GCP_PROJECT_ID}
+    credentials-location: ${GCP_CREDENTIALS_LOCATION:}
+    credentials-json: ${GCP_CREDENTIALS_JSON:}
+    bucket: ${GCS_BUCKET}
+    url-prefix: ${GCS_URL_PREFIX}
+    paths:
+      default-profile-image: default-profile-image.png
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 15MB

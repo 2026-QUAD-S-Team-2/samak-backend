@@ -10,7 +10,6 @@ Thumbs.db
 *.log
 *.tmp
 
-application-*.yml
 *.json
 
 ADMIN-API-DEVELOPMENT.md
@@ -18,6 +17,8 @@ ADMIN-API-DEVELOPMENT.md
 bin/
 
 deploy.sh
-docker-compose-*.yml
+docker-compose*.yml
 
 ci.sh
+GCP_CREDENTIALS_JSON.json
+.env
