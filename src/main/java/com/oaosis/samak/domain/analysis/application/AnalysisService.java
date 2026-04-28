@@ -28,7 +28,7 @@ import com.oaosis.samak.domain.member.entity.Member;
 import com.oaosis.samak.domain.member.exception.MemberErrorCode;
 import com.oaosis.samak.domain.member.exception.MemberException;
 import com.oaosis.samak.domain.member.repository.MemberRepository;
-import com.oaosis.samak.infra.rabbitMQ.service.AsyncAnalysisService;
+import com.oaosis.samak.infra.pubsub.service.PubSubAsyncAnalysisService;
 import com.oaosis.samak.infra.gcs.service.GcsUrlBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +50,7 @@ public class AnalysisService {
     private final CityRepository cityRepository;
     private final AnalysisImageRepository analysisImageRepository;
     private final AIAnalysisResultRepository aiAnalysisResultRepository;
-    private final AsyncAnalysisService asyncAnalysisService;
+    private final PubSubAsyncAnalysisService asyncAnalysisService;
     private final CountryMetricsSnapshotRepository countryMetricsSnapshotRepository;
     private final CountryWarningRepository countryWarningRepository;
     private final GcsUrlBuilder gcsUrlBuilder;

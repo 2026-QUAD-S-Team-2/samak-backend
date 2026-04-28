@@ -1,4 +1,4 @@
-package com.oaosis.samak.infra.rabbitMQ.dto.response;
+package com.oaosis.samak.infra.pubsub.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

@@ -1,4 +1,4 @@
-package com.oaosis.samak.infra.rabbitMQ.dto.request;
+package com.oaosis.samak.infra.pubsub.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.oaosis.samak.domain.country.entity.Country;

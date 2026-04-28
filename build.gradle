@@ -52,8 +52,12 @@ dependencies {
 	implementation 'com.google.cloud:google-cloud-storage'
 	//openfeign
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
-	//rabbitmq
+	//rabbitmq (kept for reference)
 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
+	//google cloud pubsub
+	implementation 'com.google.cloud:google-cloud-pubsub'
+	//dotenv
+	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
 }
 
 tasks.named('test') {
@@ -62,4 +66,18 @@ tasks.named('test') {
 
 bootJar {
 	archiveFileName = 'samak-app.jar'
+}
+
+bootRun {
+	def envFile = file('.env')
+	if (envFile.exists()) {
+		envFile.eachLine { line ->
+			if (line && !line.startsWith('#')) {
+				def parts = line.split('=', 2)
+				if (parts.length == 2) {
+					environment parts[0].trim(), parts[1].trim()
+				}
+			}
+		}
+	}
 }

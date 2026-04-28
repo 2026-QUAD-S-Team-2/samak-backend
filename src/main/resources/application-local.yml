@@ -42,3 +42,4 @@ security:
     - /login/oauth2/code/**
     - /api/v1/auth/**
     - /api/v1/images/**
+    - /api/v1/test/login

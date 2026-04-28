@@ -1,0 +1,15 @@
+spring:
+  rabbitmq:
+    listener:
+      simple:
+        auto-startup: false
+
+pubsub:
+  project-id: ${GCP_PROJECT_ID}
+  credentials-json: ${GCP_CREDENTIALS_JSON:}
+  topic:
+    analysis-request: analysis-request-topic
+    analysis-request-dlr: analysis-request-dead-letter-topic
+  subscription:
+    analysis-result: analysis-result-subscription
+    analysis-request-dlr: analysis-request-dead-letter-subscription
