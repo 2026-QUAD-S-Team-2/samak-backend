@@ -71,6 +71,11 @@ public class PubSubAsyncAnalysisService {
         AnalysisItem analysisItem = analysisItemRepository.findById(Long.valueOf(message.analysisId()))
                 .orElseThrow(() -> new AnalysisException(AnalysisErrorCode.ANALYSIS_ITEM_NOT_FOUND));
 
+        if (aiAnalysisResultRepository.findByAnalysisItem(analysisItem).isPresent()) {
+            log.warn("Duplicate message for analysisItemId: {}, skipping", analysisItem.getId());
+            return;
+        }
+
         if (message.riskScore() == null) {
             aiAnalysisResultRepository.save(new AIAnalysisResult(analysisItem, message.message()));
             analysisItem.updateStatus(AnalysisStatus.FAILED);
