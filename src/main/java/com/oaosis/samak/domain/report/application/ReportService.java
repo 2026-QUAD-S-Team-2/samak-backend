@@ -43,7 +43,6 @@ public class ReportService {
                 .reporter(reporter)
                 .companyName(request.companyName())
                 .reason(request.reason())
-                .evidence(request.evidence())
                 .build();
         reportRepository.save(report);
 

@@ -32,14 +32,10 @@ public class Report extends BaseTimeEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String reason;
 
-    @Column(columnDefinition = "TEXT")
-    private String evidence;
-
     @Builder
-    public Report(Member reporter, String companyName, String reason, String evidence) {
+    public Report(Member reporter, String companyName, String reason) {
         this.reporter = reporter;
         this.companyName = companyName;
         this.reason = reason;
-        this.evidence = evidence;
     }
 }

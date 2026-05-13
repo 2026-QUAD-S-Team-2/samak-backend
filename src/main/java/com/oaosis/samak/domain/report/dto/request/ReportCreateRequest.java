@@ -15,9 +15,6 @@ public record ReportCreateRequest(
         @Schema(description = "신고 사유", example = "사기 의심 구인 공고입니다.")
         String reason,
 
-        @Schema(description = "증거 내용 (선택)", example = "해당 기업은 비정상적인 급여 조건을 제시했습니다.")
-        String evidence,
-
         @Schema(description = "증거 이미지 파일명 목록 (선택)", example = "[\"abc123.jpg\"]")
         List<String> imageNames,
 
