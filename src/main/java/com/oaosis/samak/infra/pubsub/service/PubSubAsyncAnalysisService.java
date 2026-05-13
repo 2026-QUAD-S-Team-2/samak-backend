@@ -71,13 +71,17 @@ public class PubSubAsyncAnalysisService {
         AnalysisItem analysisItem = analysisItemRepository.findById(Long.valueOf(message.analysisId()))
                 .orElseThrow(() -> new AnalysisException(AnalysisErrorCode.ANALYSIS_ITEM_NOT_FOUND));
 
-        AIAnalysisResult aiAnalysisResult = new AIAnalysisResult(
+        if (message.riskScore() == null) {
+            aiAnalysisResultRepository.save(new AIAnalysisResult(analysisItem, message.message()));
+            analysisItem.updateStatus(AnalysisStatus.FAILED);
+            return;
+        }
+
+        aiAnalysisResultRepository.save(new AIAnalysisResult(
                 analysisItem,
                 message.riskScore(),
                 message.riskLevel(),
-                message.message());
-        aiAnalysisResultRepository.save(aiAnalysisResult);
-
+                message.message()));
         analysisItem.updateStatus(AnalysisStatus.COMPLETED);
     }
 
