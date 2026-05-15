@@ -1,5 +1,8 @@
 package com.oaosis.samak.domain.board.application;
 
+import com.oaosis.samak.domain.analysis.entity.AnalysisItem;
+import com.oaosis.samak.domain.analysis.enums.AnalysisStatus;
+import com.oaosis.samak.domain.analysis.repository.AnalysisItemRepository;
 import com.oaosis.samak.domain.board.dto.request.CommentCreateRequest;
 import com.oaosis.samak.domain.board.dto.request.FraudVoteRequest;
 import com.oaosis.samak.domain.board.dto.request.PostCreateRequest;
@@ -52,17 +55,21 @@ public class BoardService {
     private final FraudVoteRepository fraudVoteRepository;
     private final PostScrapRepository postScrapRepository;
     private final MemberRepository memberRepository;
+    private final AnalysisItemRepository analysisItemRepository;
     private final GcsUrlBuilder gcsUrlBuilder;
 
     @Transactional
     public PostCreateResponse createPost(String email, PostCreateRequest request) {
         Member author = getMember(email);
 
+        AnalysisItem analysisItem = resolveAnalysisItem(request);
+
         Post post = Post.builder()
                 .author(author)
                 .category(request.category())
                 .title(request.title())
                 .content(request.content())
+                .analysisItem(analysisItem)
                 .build();
         postRepository.save(post);
 
@@ -237,5 +244,23 @@ public class BoardService {
     private Member getMember(String email) {
         return memberRepository.findByEmail(email)
                 .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+    }
+
+    private AnalysisItem resolveAnalysisItem(PostCreateRequest request) {
+        if (request.category() == PostCategory.AI_ANALYSIS) {
+            if (request.analysisItemId() == null) {
+                throw new BoardException(BoardErrorCode.ANALYSIS_ITEM_REQUIRED);
+            }
+            AnalysisItem item = analysisItemRepository.findById(request.analysisItemId())
+                    .orElseThrow(() -> new BoardException(BoardErrorCode.ANALYSIS_ITEM_NOT_FOUND));
+            if (item.getStatus() != AnalysisStatus.COMPLETED) {
+                throw new BoardException(BoardErrorCode.ANALYSIS_ITEM_NOT_COMPLETED);
+            }
+            return item;
+        }
+        if (request.analysisItemId() != null) {
+            throw new BoardException(BoardErrorCode.ANALYSIS_ITEM_NOT_ALLOWED);
+        }
+        return null;
     }
 }

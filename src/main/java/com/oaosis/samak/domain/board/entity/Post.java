@@ -1,5 +1,6 @@
 package com.oaosis.samak.domain.board.entity;
 
+import com.oaosis.samak.domain.analysis.entity.AnalysisItem;
 import com.oaosis.samak.domain.board.entity.enums.PostCategory;
 import com.oaosis.samak.domain.member.entity.Member;
 import com.oaosis.samak.global.entity.BaseEntity;
@@ -24,7 +25,7 @@ public class Post extends BaseEntity {
     private Member author;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private PostCategory category;
 
     @Column(nullable = false, length = 100)
@@ -33,11 +34,16 @@ public class Post extends BaseEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "analysis_item_id")
+    private AnalysisItem analysisItem;
+
     @Builder
-    public Post(Member author, PostCategory category, String title, String content) {
+    public Post(Member author, PostCategory category, String title, String content, AnalysisItem analysisItem) {
         this.author = author;
         this.category = category;
         this.title = title;
         this.content = content;
+        this.analysisItem = analysisItem;
     }
 }

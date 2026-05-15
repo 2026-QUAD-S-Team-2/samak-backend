@@ -33,7 +33,7 @@ public class BoardController {
 
     private final BoardService boardService;
 
-    @Operation(summary = "게시글 등록", description = "피해 경험담 또는 사기 의심 투표 게시글을 등록합니다.")
+    @Operation(summary = "게시글 등록", description = "피해 경험담, 사기 의심 투표, AI 분석 결과 공유 게시글을 등록합니다.")
     @PostMapping("/posts")
     public ResponseEntity<ApiResponse<PostCreateResponse>> createPost(
             @AuthenticationPrincipal AuthenticatedUser user,

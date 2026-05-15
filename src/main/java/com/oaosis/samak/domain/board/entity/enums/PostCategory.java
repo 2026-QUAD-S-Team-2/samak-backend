@@ -5,5 +5,6 @@ import lombok.Getter;
 @Getter
 public enum PostCategory {
     EXPERIENCE,   // 피해 경험담
-    FRAUD_VOTE;   // 사기 의심 투표
+    FRAUD_VOTE,   // 사기 의심 투표
+    AI_ANALYSIS; // AI 분석 결과 공유
 }

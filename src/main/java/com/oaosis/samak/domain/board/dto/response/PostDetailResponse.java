@@ -10,7 +10,7 @@ import java.util.List;
 public record PostDetailResponse(
         @Schema(description = "게시글 ID", example = "1")
         Long id,
-        @Schema(description = "카테고리 (EXPERIENCE: 피해 경험담, FRAUD_VOTE: 사기 의심 투표)", example = "EXPERIENCE")
+        @Schema(description = "카테고리 (EXPERIENCE: 피해 경험담, FRAUD_VOTE: 사기 의심 투표, AI_ANALYSIS: AI 분석 결과 공유)", example = "EXPERIENCE")
         PostCategory category,
         @Schema(description = "제목", example = "이 회사 사기인가요?")
         String title,
@@ -24,6 +24,8 @@ public record PostDetailResponse(
         Long commentCount,
         @Schema(description = "이미지 URL 목록")
         List<String> imageUrls,
+        @Schema(description = "연결된 분석 아이템 ID (AI_ANALYSIS 카테고리일 때만 값 존재)", example = "1")
+        Long analysisItemId,
         @Schema(description = "작성일시")
         LocalDateTime createdAt
 ) {
@@ -38,6 +40,7 @@ public record PostDetailResponse(
                 likeCount,
                 commentCount,
                 imageUrls,
+                post.getAnalysisItem() != null ? post.getAnalysisItem().getId() : null,
                 post.getCreatedAt()
         );
     }
