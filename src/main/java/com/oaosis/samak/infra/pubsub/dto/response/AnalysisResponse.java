@@ -24,6 +24,24 @@ public record AnalysisResponse(
         List<String> travelBanRegionsMatched,
 
         @JsonProperty("message")
-        String message
+        String message,
+
+        @JsonProperty("location")
+        Location location
 ) {
+    public record Location(
+            @JsonProperty("rawText") String rawText,
+            @JsonProperty("lat") Double lat,
+            @JsonProperty("lng") Double lng,
+            @JsonProperty("adminLevel") String adminLevel,
+            @JsonProperty("zoom") Integer zoom,
+            @JsonProperty("status") String status,
+            @JsonProperty("viewportNe") ViewportPoint viewportNe,
+            @JsonProperty("viewportSw") ViewportPoint viewportSw
+    ) {
+        public record ViewportPoint(
+                @JsonProperty("lat") Double lat,
+                @JsonProperty("lng") Double lng
+        ) {}
+    }
 }

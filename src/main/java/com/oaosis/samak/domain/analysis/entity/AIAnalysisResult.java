@@ -6,8 +6,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Table(name = "ai_analysis_result")
 @Entity
 @Getter
@@ -35,11 +33,15 @@ public class AIAnalysisResult extends BaseTimeEntity {
     @Column(name="error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
-    public AIAnalysisResult(AnalysisItem analysisItem, int riskScore, String riskLevel, String message) {
+    @Embedded
+    private LocationInfo location;
+
+    public AIAnalysisResult(AnalysisItem analysisItem, int riskScore, String riskLevel, String message, LocationInfo location) {
         this.analysisItem = analysisItem;
         this.riskScore = riskScore;
         this.riskLevel = riskLevel;
         this.message = message;
+        this.location = location;
     }
 
     public AIAnalysisResult(AnalysisItem analysisItem, String errorMessage) {

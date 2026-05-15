@@ -9,6 +9,7 @@ import com.google.protobuf.ByteString;
 import com.google.pubsub.v1.PubsubMessage;
 import com.oaosis.samak.domain.analysis.entity.AIAnalysisResult;
 import com.oaosis.samak.domain.analysis.entity.AnalysisItem;
+import com.oaosis.samak.domain.analysis.entity.LocationInfo;
 import com.oaosis.samak.domain.analysis.enums.AnalysisStatus;
 import com.oaosis.samak.domain.analysis.exception.AnalysisErrorCode;
 import com.oaosis.samak.domain.analysis.exception.AnalysisException;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -86,8 +88,20 @@ public class PubSubAsyncAnalysisService {
                 analysisItem,
                 message.riskScore(),
                 message.riskLevel(),
-                message.message()));
+                message.message(),
+                buildLocationInfo(message.location())));
         analysisItem.updateStatus(AnalysisStatus.COMPLETED);
+    }
+
+    private LocationInfo buildLocationInfo(AnalysisResponse.Location loc) {
+        if (loc == null) {
+            return null;
+        }
+        Double neLat = Optional.ofNullable(loc.viewportNe()).map(AnalysisResponse.Location.ViewportPoint::lat).orElse(null);
+        Double neLng = Optional.ofNullable(loc.viewportNe()).map(AnalysisResponse.Location.ViewportPoint::lng).orElse(null);
+        Double swLat = Optional.ofNullable(loc.viewportSw()).map(AnalysisResponse.Location.ViewportPoint::lat).orElse(null);
+        Double swLng = Optional.ofNullable(loc.viewportSw()).map(AnalysisResponse.Location.ViewportPoint::lng).orElse(null);
+        return new LocationInfo(loc.rawText(), loc.lat(), loc.lng(), loc.adminLevel(), loc.zoom(), loc.status(), neLat, neLng, swLat, swLng);
     }
 
     @Transactional
