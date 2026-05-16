@@ -13,6 +13,7 @@ import com.oaosis.samak.domain.board.dto.response.PostCreateResponse;
 import com.oaosis.samak.domain.board.dto.response.PostDetailResponse;
 import com.oaosis.samak.domain.board.dto.response.PostListResponse;
 import com.oaosis.samak.domain.board.dto.response.ReplyResponse;
+import com.oaosis.samak.domain.board.dto.response.ScrapResponse;
 import com.oaosis.samak.domain.board.entity.Comment;
 import com.oaosis.samak.domain.board.entity.FraudVote;
 import com.oaosis.samak.domain.board.entity.Post;
@@ -215,7 +216,7 @@ public class BoardService {
     }
 
     @Transactional
-    public void addScrap(Long postId, String email) {
+    public ScrapResponse addScrap(Long postId, String email) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BoardException(BoardErrorCode.POST_NOT_FOUND));
 
@@ -229,16 +230,26 @@ public class BoardService {
                 .post(post)
                 .member(member)
                 .build());
+
+        long likeCount = postLikeRepository.countByPostId(postId);
+        return ScrapResponse.of(postId, likeCount);
     }
 
     @Transactional
-    public void removeScrap(Long postId, String email) {
+    public ScrapResponse removeScrap(Long postId, String email) {
+        if (!postRepository.existsById(postId)) {
+            throw new BoardException(BoardErrorCode.POST_NOT_FOUND);
+        }
+
         Member member = getMember(email);
 
         PostScrap scrap = postScrapRepository.findByPostIdAndMemberId(postId, member.getId())
                 .orElseThrow(() -> new BoardException(BoardErrorCode.SCRAP_NOT_FOUND));
 
         postScrapRepository.delete(scrap);
+
+        long likeCount = postLikeRepository.countByPostId(postId);
+        return ScrapResponse.of(postId, likeCount);
     }
 
     private Member getMember(String email) {

@@ -10,6 +10,7 @@ import com.oaosis.samak.domain.board.dto.response.FraudVoteResponse;
 import com.oaosis.samak.domain.board.dto.response.PostCreateResponse;
 import com.oaosis.samak.domain.board.dto.response.PostDetailResponse;
 import com.oaosis.samak.domain.board.dto.response.PostListResponse;
+import com.oaosis.samak.domain.board.dto.response.ScrapResponse;
 import com.oaosis.samak.domain.board.entity.enums.PostCategory;
 import com.oaosis.samak.global.response.ApiResponse;
 import com.oaosis.samak.global.response.CursorResponse;
@@ -127,23 +128,23 @@ public class BoardController {
 
     @Operation(summary = "게시글 스크랩 추가")
     @PostMapping("/posts/{postId}/scrap")
-    public ResponseEntity<ApiResponse<Void>> addScrap(
+    public ResponseEntity<ApiResponse<ScrapResponse>> addScrap(
             @Parameter(description = "게시글 ID", required = true)
             @PathVariable Long postId,
             @AuthenticationPrincipal AuthenticatedUser user
     ) {
-        boardService.addScrap(postId, user.getEmail());
-        return ResponseEntity.ok(ApiResponse.success());
+        ScrapResponse response = boardService.addScrap(postId, user.getEmail());
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @Operation(summary = "게시글 스크랩 취소")
     @DeleteMapping("/posts/{postId}/scrap")
-    public ResponseEntity<ApiResponse<Void>> removeScrap(
+    public ResponseEntity<ApiResponse<ScrapResponse>> removeScrap(
             @Parameter(description = "게시글 ID", required = true)
             @PathVariable Long postId,
             @AuthenticationPrincipal AuthenticatedUser user
     ) {
-        boardService.removeScrap(postId, user.getEmail());
-        return ResponseEntity.ok(ApiResponse.success());
+        ScrapResponse response = boardService.removeScrap(postId, user.getEmail());
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 }
