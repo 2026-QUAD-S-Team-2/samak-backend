@@ -5,6 +5,7 @@ import com.oaosis.samak.domain.analysis.enums.AnalysisStatus;
 import com.oaosis.samak.domain.analysis.repository.AnalysisItemRepository;
 import com.oaosis.samak.domain.board.dto.request.PostCreateRequest;
 import com.oaosis.samak.domain.board.dto.response.PostDetailResponse;
+import com.oaosis.samak.domain.board.dto.response.PostListResponse;
 import com.oaosis.samak.domain.board.entity.Post;
 import com.oaosis.samak.domain.board.entity.enums.PostCategory;
 import com.oaosis.samak.domain.board.exception.BoardErrorCode;
@@ -12,11 +13,11 @@ import com.oaosis.samak.domain.board.exception.BoardException;
 import com.oaosis.samak.domain.board.repository.CommentRepository;
 import com.oaosis.samak.domain.board.repository.FraudVoteRepository;
 import com.oaosis.samak.domain.board.repository.PostImageRepository;
-import com.oaosis.samak.domain.board.repository.PostLikeRepository;
 import com.oaosis.samak.domain.board.repository.PostRepository;
 import com.oaosis.samak.domain.board.repository.PostScrapRepository;
 import com.oaosis.samak.domain.member.entity.Member;
 import com.oaosis.samak.domain.member.repository.MemberRepository;
+import com.oaosis.samak.global.response.CursorResponse;
 import com.oaosis.samak.infra.gcs.service.GcsUrlBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,7 +41,6 @@ class BoardServiceTest {
 
     @Mock PostRepository postRepository;
     @Mock PostImageRepository postImageRepository;
-    @Mock PostLikeRepository postLikeRepository;
     @Mock CommentRepository commentRepository;
     @Mock FraudVoteRepository fraudVoteRepository;
     @Mock PostScrapRepository postScrapRepository;
@@ -164,7 +164,7 @@ class BoardServiceTest {
         when(post.getAuthor()).thenReturn(member);
 
         when(postRepository.findByIdWithAuthor(1L)).thenReturn(Optional.of(post));
-        when(postLikeRepository.countByPostId(1L)).thenReturn(3L);
+        when(postScrapRepository.countByPostId(1L)).thenReturn(3L);
         when(commentRepository.countByPostId(1L)).thenReturn(2L);
         when(postImageRepository.findAllByPost(post)).thenReturn(List.of());
 
@@ -184,12 +184,47 @@ class BoardServiceTest {
         when(post.getAuthor()).thenReturn(member);
 
         when(postRepository.findByIdWithAuthor(1L)).thenReturn(Optional.of(post));
-        when(postLikeRepository.countByPostId(1L)).thenReturn(0L);
+        when(postScrapRepository.countByPostId(1L)).thenReturn(0L);
         when(commentRepository.countByPostId(1L)).thenReturn(0L);
         when(postImageRepository.findAllByPost(post)).thenReturn(List.of());
 
         PostDetailResponse response = boardService.getPostDetail(1L);
 
         assertThat(response.analysisItemId()).isNull();
+    }
+
+    @Test
+    void getPostDetail_withScrappedPost_returnsIsScrappedTrue() {
+        Member member = mock(Member.class);
+        when(member.getNickname()).thenReturn("홍길동");
+
+        Post post = mock(Post.class);
+        when(post.getCategory()).thenReturn(PostCategory.EXPERIENCE);
+        when(post.getAnalysisItem()).thenReturn(null);
+        when(post.getAuthor()).thenReturn(member);
+
+        when(postRepository.findByIdWithAuthor(1L)).thenReturn(Optional.of(post));
+        when(postScrapRepository.countByPostId(1L)).thenReturn(0L);
+        when(commentRepository.countByPostId(1L)).thenReturn(0L);
+        when(postScrapRepository.existsByPostIdAndMemberId(1L, 10L)).thenReturn(true);
+        when(postImageRepository.findAllByPost(post)).thenReturn(List.of());
+
+        PostDetailResponse response = boardService.getPostDetail(1L, 10L);
+
+        assertThat(response.isScrapped()).isTrue();
+    }
+
+    @Test
+    void getPostList_withScrappedPosts_appliesScrapStatus() {
+        PostListResponse first = new PostListResponse(2L, PostCategory.EXPERIENCE, "제목2", 0L, 0L, null);
+        PostListResponse second = new PostListResponse(1L, PostCategory.EXPERIENCE, "제목1", 0L, 0L, null);
+
+        when(postRepository.findPostsFirst(any())).thenReturn(List.of(first, second));
+        when(postScrapRepository.findScrappedPostIds(10L, List.of(2L, 1L))).thenReturn(List.of(1L));
+
+        CursorResponse<PostListResponse> response = boardService.getPostList(null, null, 10, 10L);
+
+        assertThat(response.data()).extracting(PostListResponse::isScrapped)
+                .containsExactly(false, true);
     }
 }
