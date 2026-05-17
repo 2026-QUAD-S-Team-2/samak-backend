@@ -12,11 +12,28 @@ public record PostListResponse(
         PostCategory category,
         @Schema(description = "제목", example = "이 회사 사기인가요?")
         String title,
-        @Schema(description = "좋아요 수", example = "10")
-        Long likeCount,
+        @Schema(description = "스크랩 수", example = "10")
+        Long scrapCount,
         @Schema(description = "댓글 수", example = "5")
         Long commentCount,
+        @Schema(description = "현재 사용자의 스크랩 여부", example = "true")
+        Boolean isScrapped,
         @Schema(description = "작성일시")
         LocalDateTime createdAt
 ) {
+
+    public PostListResponse(
+            Long id,
+            PostCategory category,
+            String title,
+            Long scrapCount,
+            Long commentCount,
+            LocalDateTime createdAt
+    ) {
+        this(id, category, title, scrapCount, commentCount, false, createdAt);
+    }
+
+    public PostListResponse withIsScrapped(boolean isScrapped) {
+        return new PostListResponse(id, category, title, scrapCount, commentCount, isScrapped, createdAt);
+    }
 }

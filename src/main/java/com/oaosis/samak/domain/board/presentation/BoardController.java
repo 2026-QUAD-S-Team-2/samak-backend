@@ -47,6 +47,7 @@ public class BoardController {
     @Operation(summary = "게시글 목록 조회", description = "게시글 목록을 커서 기반 페이지네이션으로 조회합니다.")
     @GetMapping("/posts")
     public ResponseEntity<ApiResponse<CursorResponse<PostListResponse>>> getPostList(
+            @AuthenticationPrincipal AuthenticatedUser user,
             @Parameter(description = "카테고리 필터 (미입력 시 전체 조회, EXPERIENCE: 피해 경험담, FRAUD_VOTE: 사기 의심 투표)")
             @RequestParam(required = false) PostCategory category,
             @Parameter(description = "커서 (이전 응답의 nextCursor 값, 첫 페이지는 미입력)")
@@ -54,17 +55,18 @@ public class BoardController {
             @Parameter(description = "페이지 크기 (기본값: 10)")
             @RequestParam(defaultValue = "10") int size
     ) {
-        CursorResponse<PostListResponse> response = boardService.getPostList(category, cursor, size);
+        CursorResponse<PostListResponse> response = boardService.getPostList(category, cursor, size, getMemberId(user));
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @Operation(summary = "게시글 상세 조회")
     @GetMapping("/posts/{postId}")
     public ResponseEntity<ApiResponse<PostDetailResponse>> getPostDetail(
+            @AuthenticationPrincipal AuthenticatedUser user,
             @Parameter(description = "게시글 ID", required = true)
             @PathVariable Long postId
     ) {
-        PostDetailResponse response = boardService.getPostDetail(postId);
+        PostDetailResponse response = boardService.getPostDetail(postId, getMemberId(user));
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -146,5 +148,9 @@ public class BoardController {
     ) {
         ScrapResponse response = boardService.removeScrap(postId, user.getEmail());
         return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    private Long getMemberId(AuthenticatedUser user) {
+        return user == null ? null : user.getId();
     }
 }

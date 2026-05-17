@@ -27,7 +27,6 @@ import com.oaosis.samak.domain.board.exception.BoardException;
 import com.oaosis.samak.domain.board.repository.CommentRepository;
 import com.oaosis.samak.domain.board.repository.FraudVoteRepository;
 import com.oaosis.samak.domain.board.repository.PostImageRepository;
-import com.oaosis.samak.domain.board.repository.PostLikeRepository;
 import com.oaosis.samak.domain.board.repository.PostRepository;
 import com.oaosis.samak.domain.board.repository.PostScrapRepository;
 import com.oaosis.samak.domain.member.entity.Member;
@@ -42,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,7 +51,6 @@ public class BoardService {
 
     private final PostRepository postRepository;
     private final PostImageRepository postImageRepository;
-    private final PostLikeRepository postLikeRepository;
     private final CommentRepository commentRepository;
     private final FraudVoteRepository fraudVoteRepository;
     private final PostScrapRepository postScrapRepository;
@@ -88,6 +87,10 @@ public class BoardService {
     }
 
     public CursorResponse<PostListResponse> getPostList(PostCategory category, Long cursor, int size) {
+        return getPostList(category, cursor, size, null);
+    }
+
+    public CursorResponse<PostListResponse> getPostList(PostCategory category, Long cursor, int size, Long memberId) {
         PageRequest pageable = PageRequest.of(0, size + 1);
 
         List<PostListResponse> items;
@@ -101,20 +104,25 @@ public class BoardService {
                     : postRepository.findPostsByCategoryAfterCursor(category, cursor, pageable);
         }
 
-        return CursorResponse.of(items, size, PostListResponse::id);
+        return CursorResponse.of(applyScrapStatus(items, memberId), size, PostListResponse::id);
     }
 
     public PostDetailResponse getPostDetail(Long postId) {
+        return getPostDetail(postId, null);
+    }
+
+    public PostDetailResponse getPostDetail(Long postId, Long memberId) {
         Post post = postRepository.findByIdWithAuthor(postId)
                 .orElseThrow(() -> new BoardException(BoardErrorCode.POST_NOT_FOUND));
 
-        long likeCount = postLikeRepository.countByPostId(postId);
+        long scrapCount = postScrapRepository.countByPostId(postId);
         long commentCount = commentRepository.countByPostId(postId);
+        boolean isScrapped = memberId != null && postScrapRepository.existsByPostIdAndMemberId(postId, memberId);
         List<String> imageUrls = postImageRepository.findAllByPost(post).stream()
                 .map(img -> gcsUrlBuilder.buildImageUrl(img.getImageName()))
                 .toList();
 
-        return PostDetailResponse.of(post, likeCount, commentCount, imageUrls);
+        return PostDetailResponse.of(post, scrapCount, commentCount, isScrapped, imageUrls);
     }
 
     @Transactional
@@ -231,8 +239,8 @@ public class BoardService {
                 .member(member)
                 .build());
 
-        long likeCount = postLikeRepository.countByPostId(postId);
-        return ScrapResponse.of(postId, likeCount);
+        long scrapCount = postScrapRepository.countByPostId(postId);
+        return ScrapResponse.of(postId, scrapCount);
     }
 
     @Transactional
@@ -248,13 +256,28 @@ public class BoardService {
 
         postScrapRepository.delete(scrap);
 
-        long likeCount = postLikeRepository.countByPostId(postId);
-        return ScrapResponse.of(postId, likeCount);
+        long scrapCount = postScrapRepository.countByPostId(postId);
+        return ScrapResponse.of(postId, scrapCount);
     }
 
     private Member getMember(String email) {
         return memberRepository.findByEmail(email)
                 .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+    }
+
+    private List<PostListResponse> applyScrapStatus(List<PostListResponse> items, Long memberId) {
+        if (memberId == null || items.isEmpty()) {
+            return items;
+        }
+
+        List<Long> postIds = items.stream()
+                .map(PostListResponse::id)
+                .toList();
+        Set<Long> scrappedPostIds = Set.copyOf(postScrapRepository.findScrappedPostIds(memberId, postIds));
+
+        return items.stream()
+                .map(item -> item.withIsScrapped(scrappedPostIds.contains(item.id())))
+                .toList();
     }
 
     private AnalysisItem resolveAnalysisItem(PostCreateRequest request) {

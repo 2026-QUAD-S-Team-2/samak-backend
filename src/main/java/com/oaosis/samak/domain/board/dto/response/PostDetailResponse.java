@@ -18,10 +18,12 @@ public record PostDetailResponse(
         String content,
         @Schema(description = "작성자 닉네임", example = "홍길동")
         String authorNickname,
-        @Schema(description = "좋아요 수", example = "10")
-        Long likeCount,
+        @Schema(description = "스크랩 수", example = "10")
+        Long scrapCount,
         @Schema(description = "댓글 수", example = "5")
         Long commentCount,
+        @Schema(description = "현재 사용자의 스크랩 여부", example = "true")
+        Boolean isScrapped,
         @Schema(description = "이미지 URL 목록")
         List<String> imageUrls,
         @Schema(description = "연결된 분석 아이템 ID (AI_ANALYSIS 카테고리일 때만 값 존재)", example = "1")
@@ -30,15 +32,22 @@ public record PostDetailResponse(
         LocalDateTime createdAt
 ) {
 
-    public static PostDetailResponse of(Post post, long likeCount, long commentCount, List<String> imageUrls) {
+    public static PostDetailResponse of(
+            Post post,
+            long scrapCount,
+            long commentCount,
+            boolean isScrapped,
+            List<String> imageUrls
+    ) {
         return new PostDetailResponse(
                 post.getId(),
                 post.getCategory(),
                 post.getTitle(),
                 post.getContent(),
                 post.getAuthor().getNickname(),
-                likeCount,
+                scrapCount,
                 commentCount,
+                isScrapped,
                 imageUrls,
                 post.getAnalysisItem() != null ? post.getAnalysisItem().getId() : null,
                 post.getCreatedAt()

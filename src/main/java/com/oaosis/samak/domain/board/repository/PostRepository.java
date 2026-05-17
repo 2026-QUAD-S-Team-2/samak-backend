@@ -19,7 +19,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("""
             SELECT new com.oaosis.samak.domain.board.dto.response.PostListResponse(
                 p.id, p.category, p.title,
-                (SELECT COUNT(pl) FROM PostLike pl WHERE pl.post = p),
+                (SELECT COUNT(ps) FROM PostScrap ps WHERE ps.post = p),
                 (SELECT COUNT(c) FROM Comment c WHERE c.post = p),
                 p.createdAt)
             FROM Post p
@@ -30,7 +30,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("""
             SELECT new com.oaosis.samak.domain.board.dto.response.PostListResponse(
                 p.id, p.category, p.title,
-                (SELECT COUNT(pl) FROM PostLike pl WHERE pl.post = p),
+                (SELECT COUNT(ps) FROM PostScrap ps WHERE ps.post = p),
                 (SELECT COUNT(c) FROM Comment c WHERE c.post = p),
                 p.createdAt)
             FROM Post p
@@ -42,7 +42,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("""
             SELECT new com.oaosis.samak.domain.board.dto.response.PostListResponse(
                 p.id, p.category, p.title,
-                (SELECT COUNT(pl) FROM PostLike pl WHERE pl.post = p),
+                (SELECT COUNT(ps) FROM PostScrap ps WHERE ps.post = p),
                 (SELECT COUNT(c) FROM Comment c WHERE c.post = p),
                 p.createdAt)
             FROM Post p
@@ -54,7 +54,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("""
             SELECT new com.oaosis.samak.domain.board.dto.response.PostListResponse(
                 p.id, p.category, p.title,
-                (SELECT COUNT(pl) FROM PostLike pl WHERE pl.post = p),
+                (SELECT COUNT(ps) FROM PostScrap ps WHERE ps.post = p),
                 (SELECT COUNT(c) FROM Comment c WHERE c.post = p),
                 p.createdAt)
             FROM Post p
