@@ -8,10 +8,12 @@ public record FraudVoteResponse(
         @Schema(description = "사기 맞다 투표 수", example = "15")
         Long fraudCount,
         @Schema(description = "사기 아니다 투표 수", example = "5")
-        Long notFraudCount
+        Long notFraudCount,
+        @Schema(description = "현재 사용자의 투표 여부 (비로그인 시 false)", example = "true")
+        boolean isVoted
 ) {
 
-    public static FraudVoteResponse of(Long postId, long fraudCount, long notFraudCount) {
-        return new FraudVoteResponse(postId, fraudCount, notFraudCount);
+    public static FraudVoteResponse of(Long postId, long fraudCount, long notFraudCount, boolean isVoted) {
+        return new FraudVoteResponse(postId, fraudCount, notFraudCount, isVoted);
     }
 }

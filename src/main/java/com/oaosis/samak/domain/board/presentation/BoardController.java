@@ -85,10 +85,11 @@ public class BoardController {
     @Operation(summary = "사기 의심 투표 결과 조회")
     @GetMapping("/posts/{postId}/fraud-vote")
     public ResponseEntity<ApiResponse<FraudVoteResponse>> getFraudVoteResult(
+            @AuthenticationPrincipal AuthenticatedUser user,
             @Parameter(description = "게시글 ID", required = true)
             @PathVariable Long postId
     ) {
-        FraudVoteResponse response = boardService.getFraudVoteResult(postId);
+        FraudVoteResponse response = boardService.getFraudVoteResult(postId, getMemberId(user));
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

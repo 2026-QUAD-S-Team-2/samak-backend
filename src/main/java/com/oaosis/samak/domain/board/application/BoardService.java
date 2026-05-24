@@ -125,6 +125,8 @@ public class BoardService {
         return PostDetailResponse.of(post, scrapCount, commentCount, isScrapped, imageUrls);
     }
 
+
+
     @Transactional
     public void castFraudVote(Long postId, String email, FraudVoteRequest request) {
         Post post = postRepository.findById(postId)
@@ -147,15 +149,16 @@ public class BoardService {
                 .build());
     }
 
-    public FraudVoteResponse getFraudVoteResult(Long postId) {
+    public FraudVoteResponse getFraudVoteResult(Long postId, Long memberId) {
         if (!postRepository.existsById(postId)) {
             throw new BoardException(BoardErrorCode.POST_NOT_FOUND);
         }
 
         long fraudCount = fraudVoteRepository.countByPostIdAndVoteType(postId, VoteType.FRAUD);
         long notFraudCount = fraudVoteRepository.countByPostIdAndVoteType(postId, VoteType.NOT_FRAUD);
+        boolean isVoted = memberId != null && fraudVoteRepository.existsByPostIdAndVoterId(postId, memberId);
 
-        return FraudVoteResponse.of(postId, fraudCount, notFraudCount);
+        return FraudVoteResponse.of(postId, fraudCount, notFraudCount, isVoted);
     }
 
     public List<CommentResponse> getComments(Long postId) {
