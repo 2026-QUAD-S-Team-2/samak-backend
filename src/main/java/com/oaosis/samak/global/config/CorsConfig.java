@@ -22,6 +22,7 @@ public class CorsConfig implements WebMvcConfigurer {
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5555",
                 "http://localhost:8080",
+                "https://2026-quad-s-team-2.github.io",
                 "https://" + CLIENT,
                 "https://" + SERVER
         ));
