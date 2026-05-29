@@ -78,4 +78,13 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
             @Param("type") ContactType type,
             @Param("value") String value
     );
+
+    @Query("""
+            SELECT r
+            FROM Report r
+            JOIN FETCH r.reporter
+            WHERE r.companyName = :companyName
+            ORDER BY r.createdAt DESC
+            """)
+    List<Report> findAllByCompanyNameWithReporterOrderByCreatedAtDesc(@Param("companyName") String companyName);
 }

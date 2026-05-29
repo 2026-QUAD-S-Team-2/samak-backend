@@ -4,5 +4,7 @@ public enum ReportSearchType {
     COMPANY_NAME,
     EMAIL,
     TELEGRAM,
-    PHONE
+    PHONE,
+    KAKAO_TALK,
+    MESSAGE
 }

@@ -3,6 +3,7 @@ package com.oaosis.samak.domain.report.presentation;
 import com.oaosis.samak.domain.report.application.ReportService;
 import com.oaosis.samak.domain.report.dto.request.ReportCreateRequest;
 import com.oaosis.samak.domain.report.dto.response.ReportCreateResponse;
+import com.oaosis.samak.domain.report.dto.response.ReportDetailResponse;
 import com.oaosis.samak.domain.report.dto.response.ReportHistoryResponse;
 import com.oaosis.samak.domain.report.dto.response.ReportListResponse;
 import com.oaosis.samak.domain.report.enums.ReportSearchType;
@@ -40,6 +41,17 @@ public class ReportController {
     ) {
         List<ReportListResponse> responses = reportService.getReportList(searchType, sortType, keyword);
         return ResponseEntity.ok(ApiResponse.success(responses));
+    }
+
+    @Operation(summary = "신고 상세 조회",
+            description = "피해 사례 상세 화면에서 회사명 기준 신고 요약, 피해 내용, 증거 자료를 조회합니다.")
+    @GetMapping("/detail")
+    public ResponseEntity<ApiResponse<ReportDetailResponse>> getReportDetail(
+            @Parameter(description = "회사명", example = "ABC Corporation")
+            @RequestParam String companyName
+    ) {
+        ReportDetailResponse response = reportService.getReportDetail(companyName);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @Operation(summary = "신고 이력 조회",
