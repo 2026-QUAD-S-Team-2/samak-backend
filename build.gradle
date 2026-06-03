@@ -8,7 +8,7 @@ group = 'com.oaosis'
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
+		languageVersion = JavaLanguageVersion.of(21)
 	}
 }
 
@@ -52,12 +52,11 @@ dependencies {
 	implementation 'com.google.cloud:google-cloud-storage'
 	//openfeign
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
-	//rabbitmq (kept for reference)
-	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 	//google cloud pubsub
 	implementation 'com.google.cloud:google-cloud-pubsub'
 	//dotenv
 	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 }
 
 tasks.named('test') {
