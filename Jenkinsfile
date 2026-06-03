@@ -69,6 +69,7 @@ pipeline {
                             docker push '${env.IMAGE}'
                             docker tag '${env.IMAGE}' '${env.IMAGE_BASE}:latest'
                             docker push '${env.IMAGE_BASE}:latest'
+                            docker rmi '${env.IMAGE}' '${env.IMAGE_BASE}:latest' || true
                         """
                     }
                 }
@@ -183,7 +184,8 @@ pipeline {
                     ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${env.ACTIVE_SERVER} \
                         "cd '${APP_DIR}' \
                          && docker compose -f '${COMPOSE_FILE}' stop app \
-                         && docker compose -f '${COMPOSE_FILE}' rm -f app"
+                         && docker compose -f '${COMPOSE_FILE}' rm -f app \
+                         && docker image prune -af"
                 """
             }
         }
