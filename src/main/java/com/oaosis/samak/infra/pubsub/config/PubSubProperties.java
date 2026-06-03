@@ -21,6 +21,7 @@ public class PubSubProperties {
     public static class Topic {
         private String analysisRequest;
         private String analysisRequestDlr;
+        private String analysisResultDlr;
     }
 
     @Getter
@@ -28,5 +29,6 @@ public class PubSubProperties {
     public static class Subscription {
         private String analysisResult;
         private String analysisRequestDlr;
+        private String analysisResultDlr;
     }
 }

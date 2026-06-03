@@ -123,7 +123,7 @@ public class CountryMetricsMessageGenerator {
         return message.toString();
     }
 
-    private static BigDecimal convertToAnnual(
+    public static BigDecimal convertToAnnual(
             BigDecimal wage,
             WageUnit unit
     ) {

@@ -7,6 +7,7 @@ import com.google.cloud.pubsub.v1.Publisher;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
 import com.google.pubsub.v1.PubsubMessage;
+import com.oaosis.samak.domain.analysis.application.CountryMetricsMessageGenerator;
 import com.oaosis.samak.domain.analysis.entity.AIAnalysisResult;
 import com.oaosis.samak.domain.analysis.entity.AnalysisItem;
 import com.oaosis.samak.domain.analysis.entity.LocationInfo;
@@ -15,12 +16,17 @@ import com.oaosis.samak.domain.analysis.exception.AnalysisErrorCode;
 import com.oaosis.samak.domain.analysis.exception.AnalysisException;
 import com.oaosis.samak.domain.analysis.repository.AIAnalysisResultRepository;
 import com.oaosis.samak.domain.analysis.repository.AnalysisItemRepository;
+import com.oaosis.samak.domain.country.entity.CountryMetricsSnapshot;
+import com.oaosis.samak.domain.country.repository.CountryMetricsSnapshotRepository;
 import com.oaosis.samak.infra.pubsub.dto.request.AnalysisRequest;
 import com.oaosis.samak.infra.pubsub.dto.response.AnalysisResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -33,8 +39,10 @@ public class PubSubAsyncAnalysisService {
 
     private final AnalysisItemRepository analysisItemRepository;
     private final AIAnalysisResultRepository aiAnalysisResultRepository;
+    private final CountryMetricsSnapshotRepository countryMetricsSnapshotRepository;
     private final Publisher analysisRequestPublisher;
     private final ObjectMapper objectMapper;
+    private final TransactionTemplate transactionTemplate;
 
     @Transactional
     public void processAnalysisRequest(AnalysisItem analysisItem, BigDecimal salary, List<String> imageUrls) {
@@ -47,25 +55,45 @@ public class PubSubAsyncAnalysisService {
                     .setData(ByteString.copyFromUtf8(json))
                     .build();
 
-            ApiFutures.addCallback(
-                    analysisRequestPublisher.publish(pubsubMessage),
-                    new ApiFutureCallback<>() {
-                        @Override
-                        public void onSuccess(String messageId) {
-                            log.info("Published analysis request for item {}, messageId: {}", analysisItem.getId(), messageId);
-                        }
-
-                        @Override
-                        public void onFailure(Throwable t) {
-                            log.error("Failed to publish analysis request for item {}: {}", analysisItem.getId(), t.getMessage());
-                        }
-                    },
-                    MoreExecutors.directExecutor()
-            );
+            publishAfterCommit(analysisItem.getId(), pubsubMessage);
         } catch (Exception e) {
             log.error("Failed to serialize analysis request for item {}: {}", analysisItem.getId(), e.getMessage());
             throw new AnalysisException(AnalysisErrorCode.ANALYSIS_ITEM_NOT_FOUND);
         }
+    }
+
+    private void publishAfterCommit(Long analysisItemId, PubsubMessage pubsubMessage) {
+        if (TransactionSynchronizationManager.isSynchronizationActive()
+                && TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    publishAnalysisRequest(analysisItemId, pubsubMessage);
+                }
+            });
+            return;
+        }
+
+        publishAnalysisRequest(analysisItemId, pubsubMessage);
+    }
+
+    private void publishAnalysisRequest(Long analysisItemId, PubsubMessage pubsubMessage) {
+        ApiFutures.addCallback(
+                analysisRequestPublisher.publish(pubsubMessage),
+                new ApiFutureCallback<>() {
+                    @Override
+                    public void onSuccess(String messageId) {
+                        log.info("Published analysis request for item {}, messageId: {}", analysisItemId, messageId);
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        log.error("Failed to publish analysis request for item {}: {}", analysisItemId, t.getMessage());
+                        processAnalysisFailure(analysisItemId);
+                    }
+                },
+                MoreExecutors.directExecutor()
+        );
     }
 
     @Transactional
@@ -84,13 +112,56 @@ public class PubSubAsyncAnalysisService {
             return;
         }
 
+        int adjustedScore = message.riskScore();
+        String adjustedLevel = message.riskLevel();
+
+        BigDecimal salary = analysisItem.getSalary();
+        if (salary != null && salary.compareTo(BigDecimal.ZERO) > 0 && analysisItem.getCountry() != null) {
+            Optional<CountryMetricsSnapshot> snapshotOpt = countryMetricsSnapshotRepository
+                    .findTopByCountryOrderBySnapshotDateDesc(analysisItem.getCountry());
+
+            if (snapshotOpt.isPresent()) {
+                CountryMetricsSnapshot snapshot = snapshotOpt.get();
+                BigDecimal annualMinWage = CountryMetricsMessageGenerator.convertToAnnual(
+                        snapshot.getMinWage(), snapshot.getMinWageUnit());
+
+                if (salary.compareTo(annualMinWage) < 0) {
+                    adjustedScore = Math.min(message.riskScore() + 30, 99);
+                    adjustedLevel = resolveRiskLevel(adjustedScore);
+                    log.info("Min wage bonus applied for analysisItemId: {}. score: {} -> {}, level: {} -> {}",
+                            analysisItem.getId(), message.riskScore(), adjustedScore, message.riskLevel(), adjustedLevel);
+                }
+            } else {
+                log.warn("CountryMetricsSnapshot not found for analysisItemId: {}, skipping min wage check",
+                        analysisItem.getId());
+            }
+        }
+
+        String finalMessage = buildAnalysisPrefixMessage(adjustedScore, adjustedLevel) + message.message();
         aiAnalysisResultRepository.save(new AIAnalysisResult(
                 analysisItem,
-                message.riskScore(),
-                message.riskLevel(),
-                message.message(),
+                adjustedScore,
+                adjustedLevel,
+                finalMessage,
                 buildLocationInfo(message.location())));
         analysisItem.updateStatus(AnalysisStatus.COMPLETED);
+    }
+
+    private String resolveRiskLevel(int riskScore) {
+        if (riskScore >= 65) return "HIGH";
+        if (riskScore >= 35) return "MEDIUM";
+        return "LOW";
+    }
+
+    private String buildAnalysisPrefixMessage(int riskScore, String riskLevel) {
+        String displayLevel = switch (riskLevel) {
+            case "LOW" -> "Good";
+            case "MEDIUM" -> "Warning";
+            case "HIGH" -> "Danger";
+            default -> riskLevel;
+        };
+        int confidence = 100 - riskScore;
+        return "AI 분석 결과, 해당 공고는 **" + displayLevel + "** 단계로 분류되었습니다. 신뢰도는 약 **" + confidence + "%** 로 분석되었습니다. ";
     }
 
     private LocationInfo buildLocationInfo(AnalysisResponse.Location loc) {
@@ -106,6 +177,10 @@ public class PubSubAsyncAnalysisService {
 
     @Transactional
     public void processAnalysisFailure(Long analysisItemId) {
+        transactionTemplate.executeWithoutResult(status -> markAnalysisFailed(analysisItemId));
+    }
+
+    private void markAnalysisFailed(Long analysisItemId) {
         AnalysisItem analysisItem = analysisItemRepository.findById(analysisItemId)
                 .orElseThrow(() -> new AnalysisException(AnalysisErrorCode.ANALYSIS_ITEM_NOT_FOUND));
 

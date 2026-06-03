@@ -32,7 +32,8 @@ public class AnalysisResultSubscriber {
     private final ObjectMapper objectMapper;
 
     private Subscriber resultSubscriber;
-    private Subscriber dlrSubscriber;
+    private Subscriber requestDeadLetterSubscriber;
+    private Subscriber resultDeadLetterSubscriber;
 
     @PostConstruct
     public void startSubscribers() {
@@ -43,12 +44,30 @@ public class AnalysisResultSubscriber {
         resultSubscriber.startAsync().awaitRunning();
         log.info("Analysis result subscriber started");
 
-        dlrSubscriber = buildSubscriber(
+        requestDeadLetterSubscriber = buildSubscriber(
                 properties.getSubscription().getAnalysisRequestDlr(),
                 this::handleFailedAnalysisRequest
         );
-        dlrSubscriber.startAsync().awaitRunning();
-        log.info("Analysis DLR subscriber started");
+        requestDeadLetterSubscriber.startAsync().awaitRunning();
+        log.info("Analysis request dead-letter subscriber started");
+
+        resultDeadLetterSubscriber = startOptionalSubscriber(
+                properties.getSubscription().getAnalysisResultDlr(),
+                this::handleFailedAnalysisResult,
+                "Analysis result dead-letter subscriber"
+        );
+    }
+
+    private Subscriber startOptionalSubscriber(String subscriptionId, MessageReceiver receiver, String subscriberName) {
+        if (subscriptionId == null || subscriptionId.isBlank()) {
+            log.info("{} skipped because subscription is not configured", subscriberName);
+            return null;
+        }
+
+        Subscriber subscriber = buildSubscriber(subscriptionId, receiver);
+        subscriber.startAsync().awaitRunning();
+        log.info("{} started", subscriberName);
+        return subscriber;
     }
 
     private Subscriber buildSubscriber(String subscriptionId, MessageReceiver receiver) {
@@ -86,15 +105,45 @@ public class AnalysisResultSubscriber {
     }
 
     private void handleFailedAnalysisRequest(PubsubMessage message, AckReplyConsumer consumer) {
+        AnalysisRequest request;
         try {
-            AnalysisRequest request = objectMapper.readValue(
+            request = objectMapper.readValue(
                     message.getData().toStringUtf8(), AnalysisRequest.class
             );
+        } catch (Exception e) {
+            log.error("Invalid request dead-letter message: {}", e.getMessage());
+            consumer.ack();
+            return;
+        }
+
+        try {
             log.error("*** Analysis request failed for analysisItemId: {}. Handling failure. ***", request.analysisItemId());
             pubSubAsyncAnalysisService.processAnalysisFailure(request.analysisItemId());
             consumer.ack();
         } catch (Exception e) {
-            log.error("Failed to process DLR message: {}", e.getMessage());
+            log.error("Failed to process request dead-letter message: {}", e.getMessage());
+            consumer.nack();
+        }
+    }
+
+    private void handleFailedAnalysisResult(PubsubMessage message, AckReplyConsumer consumer) {
+        AnalysisResponse response;
+        try {
+            response = objectMapper.readValue(
+                    message.getData().toStringUtf8(), AnalysisResponse.class
+            );
+        } catch (Exception e) {
+            log.error("Invalid result dead-letter message: {}", e.getMessage());
+            consumer.ack();
+            return;
+        }
+
+        try {
+            log.error("*** Analysis result processing failed for analysisItemId: {}. Handling failure. ***", response.analysisId());
+            pubSubAsyncAnalysisService.processAnalysisFailure(Long.valueOf(response.analysisId()));
+            consumer.ack();
+        } catch (Exception e) {
+            log.error("Failed to process result dead-letter message: {}", e.getMessage());
             consumer.nack();
         }
     }
@@ -102,6 +151,7 @@ public class AnalysisResultSubscriber {
     @PreDestroy
     public void stopSubscribers() {
         if (resultSubscriber != null) resultSubscriber.stopAsync();
-        if (dlrSubscriber != null) dlrSubscriber.stopAsync();
+        if (requestDeadLetterSubscriber != null) requestDeadLetterSubscriber.stopAsync();
+        if (resultDeadLetterSubscriber != null) resultDeadLetterSubscriber.stopAsync();
     }
 }
