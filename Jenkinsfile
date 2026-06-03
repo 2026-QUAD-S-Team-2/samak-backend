@@ -218,6 +218,27 @@ pipeline {
 
                 echo "롤백 완료 — Active 서버(${env.ACTIVE_SERVER ?: '?'})가 계속 서비스 중입니다"
             }
+            withCredentials([string(credentialsId: 'discord-webhook-url', variable: 'DISCORD_URL')]) {
+                script {
+                    def activeServer = env.ACTIVE_SERVER ?: 'N/A'
+                    def tag          = env.GIT_COMMIT_SHORT ?: 'N/A'
+                    def buildUrl     = env.BUILD_URL ?: ''
+
+                    def payload = groovy.json.JsonOutput.toJson([
+                        embeds: [[
+                            title : '❌ 배포 실패',
+                            color : 15158332,
+                            fields: [
+                                [name: 'Active 서버', value: activeServer, inline: true],
+                                [name: '커밋',        value: tag,          inline: true],
+                                [name: '상세 로그',   value: "[콘솔 보기](${buildUrl}console)"]
+                            ]
+                        ]]
+                    ])
+                    writeFile file: '/tmp/discord-failure.json', text: payload
+                    sh "curl -s -X POST -H 'Content-Type: application/json' -d @/tmp/discord-failure.json \"\$DISCORD_URL\" || true"
+                }
+            }
         }
 
         always {
@@ -225,7 +246,15 @@ pipeline {
         }
 
         success {
-            echo "배포 성공 — Active: ${env.INACTIVE ?: 'N/A'} (${env.DEPLOY_SERVER ?: 'N/A'}) / 이미지: ${env.IMAGE ?: 'N/A'}"
+            withCredentials([string(credentialsId: 'discord-webhook-url', variable: 'DISCORD_URL')]) {
+                script {
+                    def server = "${env.INACTIVE ?: 'N/A'} (${env.DEPLOY_SERVER ?: 'N/A'})"
+                    def tag    = env.GIT_COMMIT_SHORT ?: 'N/A'
+                    sh """curl -s -X POST -H 'Content-Type: application/json' \
+                        -d '{"embeds":[{"title":"✅ 배포 성공","color":3066993,"fields":[{"name":"서버","value":"${server}","inline":true},{"name":"커밋","value":"${tag}","inline":true}]}]}' \
+                        "\$DISCORD_URL" || true"""
+                }
+            }
         }
     }
 }
