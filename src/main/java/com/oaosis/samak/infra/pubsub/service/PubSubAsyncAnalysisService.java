@@ -47,7 +47,7 @@ public class PubSubAsyncAnalysisService {
     @Transactional
     public void processAnalysisRequest(AnalysisItem analysisItem, BigDecimal salary, List<String> imageUrls) {
         analysisItem.updateStatus(AnalysisStatus.PROCESSING);
-        AnalysisRequest message = AnalysisRequest.of(analysisItem.getId(), analysisItem.getCountry(), salary, imageUrls);
+        AnalysisRequest message = AnalysisRequest.of(analysisItem.getId(), analysisItem.getCountry(), salary, imageUrls, analysisItem.getCompanyName());
 
         try {
             String json = objectMapper.writeValueAsString(message);

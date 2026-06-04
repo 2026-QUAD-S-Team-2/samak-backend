@@ -20,11 +20,14 @@ public record AnalysisRequest(
         List<String> imageUrls,
 
         @JsonProperty("salaryText")
-        String salaryText
+        String salaryText,
+
+        @JsonProperty("companyName")
+        String companyName
 ) {
-        public static AnalysisRequest of(Long analysisItemId, Country country, BigDecimal salary, List<String> imageUrls) {
+        public static AnalysisRequest of(Long analysisItemId, Country country, BigDecimal salary, List<String> imageUrls, String companyName) {
                 if (salary == null || salary.compareTo(BigDecimal.ZERO) <= 0) {
-                        return new AnalysisRequest(analysisItemId, country.getCode(), false, imageUrls, null);
+                        return new AnalysisRequest(analysisItemId, country.getCode(), false, imageUrls, null, companyName);
                 }
 
                 BigDecimal hoursPerYear = BigDecimal.valueOf(8 * 5 * 52);
@@ -33,6 +36,6 @@ public record AnalysisRequest(
                 String salaryText = country.getCurrencyCode() + " "
                         + hourlyWage.stripTrailingZeros().toPlainString() + " hour";
 
-                return new AnalysisRequest(analysisItemId, country.getCode(), false, imageUrls, salaryText);
+                return new AnalysisRequest(analysisItemId, country.getCode(), false, imageUrls, salaryText, companyName);
         }
 }
