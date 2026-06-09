@@ -23,6 +23,7 @@ public class CountryMetricsMessageGenerator {
 
         String currencyCode = country.getCurrencyCode();
         String countryCode = country.getCode();
+        String countryName = country.getNameKo() != null ? country.getNameKo() : country.getName();
 
         Currency currency = Currency.getInstance(currencyCode);
         String symbol = currency.getSymbol(new Locale("", countryCode));
@@ -36,7 +37,7 @@ public class CountryMetricsMessageGenerator {
         /**
          * 1. 국가 통계 메시지
          */
-        message.append(country.getName())
+        message.append(countryName)
                 .append("의 평균 연봉은 ")
                 .append(formatCurrency(snapshot.getAvgIncome(), symbol))
                 .append("이며, 법정 최저임금은 ")
