@@ -45,7 +45,7 @@ public class AnalysisController {
             @Parameter(description = "분석 아이템 ID", example = "1")
             @PathVariable Long analysisItemId
     ) {
-        AnalysisItemDetailResponse response = analysisService.getAnalysisItemDetail(user.getEmail(), analysisItemId);
+        AnalysisItemDetailResponse response = analysisService.getAnalysisItemDetail(analysisItemId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -56,7 +56,7 @@ public class AnalysisController {
             @Parameter(description = "분석 아이템 ID", example = "1")
             @PathVariable Long analysisItemId
     ) {
-        AIAnalysisResultResponse response = analysisService.getAIAnalysisResult(user.getEmail(), analysisItemId);
+        AIAnalysisResultResponse response = analysisService.getAIAnalysisResult(analysisItemId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -67,7 +67,7 @@ public class AnalysisController {
             @Parameter(description = "분석 아이템 ID", example = "1")
             @PathVariable Long analysisItemId
     ) {
-        CountryWarningResponse response = analysisService.getCountryWarning(user.getEmail(), analysisItemId);
+        CountryWarningResponse response = analysisService.getCountryWarning(analysisItemId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

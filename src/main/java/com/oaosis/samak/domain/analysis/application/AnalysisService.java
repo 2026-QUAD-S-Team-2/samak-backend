@@ -75,14 +75,14 @@ public class AnalysisService {
         return response;
     }
 
-    public AnalysisItemDetailResponse getAnalysisItemDetail(String email, Long analysisItemId) {
-        AnalysisItem analysisItem = getAnalysisItem(email, analysisItemId);
+    public AnalysisItemDetailResponse getAnalysisItemDetail(Long analysisItemId) {
+        AnalysisItem analysisItem = getAnalysisItem(analysisItemId);
 
         return AnalysisItemDetailResponse.of(analysisItem);
     }
 
-    public CountryWarningResponse getCountryWarning(String email, Long analysisItemId) {
-        AnalysisItem analysisItem = getAnalysisItem(email, analysisItemId);
+    public CountryWarningResponse getCountryWarning(Long analysisItemId) {
+        AnalysisItem analysisItem = getAnalysisItem(analysisItemId);
 
         CountryWarning countryWarning = analysisItem.getCountryWarning();
         if (countryWarning == null) {
@@ -162,8 +162,8 @@ public class AnalysisService {
                 .orElseThrow(() -> new CountryException(CountryErrorCode.COUNTRY_NOT_FOUND));
     }
 
-    public AIAnalysisResultResponse getAIAnalysisResult(String email, Long analysisItemId) {
-        AnalysisItem analysisItem = getAnalysisItem(email, analysisItemId);
+    public AIAnalysisResultResponse getAIAnalysisResult(Long analysisItemId) {
+        AnalysisItem analysisItem = getAnalysisItem(analysisItemId);
 
         AIAnalysisResult aiAnalysisResult = aiAnalysisResultRepository.findByAnalysisItem(analysisItem)
                 .orElseThrow(() -> new AnalysisException(AnalysisErrorCode.AI_ANALYSIS_RESULT_NOT_FOUND));
@@ -171,8 +171,8 @@ public class AnalysisService {
         return AIAnalysisResultResponse.from(aiAnalysisResult);
     }
 
-    private AnalysisItem getAnalysisItem(String email, Long analysisItemId) {
-        return analysisItemRepository.findByMember_EmailAndId(email, analysisItemId)
+    private AnalysisItem getAnalysisItem(Long analysisItemId) {
+        return analysisItemRepository.findById(analysisItemId)
                 .orElseThrow(() -> new AnalysisException(AnalysisErrorCode.ANALYSIS_ITEM_NOT_FOUND));
     }
 }

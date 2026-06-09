@@ -44,4 +44,3 @@ security:
     - /api/v1/images/**
     - /api/v1/test/login
     - /actuator/health
-    - /api/v1/analysis/items/*/ai-analysis
