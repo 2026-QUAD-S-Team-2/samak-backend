@@ -123,7 +123,7 @@ public class PubSubAsyncAnalysisService {
             if (snapshotOpt.isPresent()) {
                 CountryMetricsSnapshot snapshot = snapshotOpt.get();
                 BigDecimal annualMinWage = CountryMetricsMessageGenerator.convertToAnnual(
-                        snapshot.getMinWage(), snapshot.getMinWageUnit());
+                        snapshot.getMinWage());
 
                 if (salary.compareTo(annualMinWage) < 0) {
                     adjustedScore = Math.min(message.riskScore() + 30, 99);

@@ -10,7 +10,6 @@ import com.oaosis.samak.domain.analysis.repository.AIAnalysisResultRepository;
 import com.oaosis.samak.domain.analysis.repository.AnalysisItemRepository;
 import com.oaosis.samak.domain.country.entity.Country;
 import com.oaosis.samak.domain.country.entity.CountryMetricsSnapshot;
-import com.oaosis.samak.domain.country.entity.WageUnit;
 import com.oaosis.samak.domain.country.repository.CountryMetricsSnapshotRepository;
 import com.oaosis.samak.infra.pubsub.dto.response.AnalysisResponse;
 import org.junit.jupiter.api.Test;
@@ -175,8 +174,7 @@ class PubSubAsyncAnalysisServiceTest {
         when(mockItem.getCountry()).thenReturn(mockCountry);
         when(countryMetricsSnapshotRepository.findTopByCountryOrderBySnapshotDateDesc(mockCountry))
                 .thenReturn(Optional.of(mockSnapshot));
-        when(mockSnapshot.getMinWage()).thenReturn(BigDecimal.valueOf(2_000_000));  // 월 200만
-        when(mockSnapshot.getMinWageUnit()).thenReturn(WageUnit.MONTHLY);           // 연환산 2400만
+        when(mockSnapshot.getMinWage()).thenReturn(BigDecimal.valueOf(10_000));  // 시급 기준, 연환산 20,800,000
 
         AnalysisResponse response = new AnalysisResponse(
                 "12345", 0.3, 60, "MEDIUM", List.of(), List.of(), "메시지", null
@@ -203,8 +201,7 @@ class PubSubAsyncAnalysisServiceTest {
         when(mockItem.getCountry()).thenReturn(mockCountry);
         when(countryMetricsSnapshotRepository.findTopByCountryOrderBySnapshotDateDesc(mockCountry))
                 .thenReturn(Optional.of(mockSnapshot));
-        when(mockSnapshot.getMinWage()).thenReturn(BigDecimal.valueOf(2_000_000));
-        when(mockSnapshot.getMinWageUnit()).thenReturn(WageUnit.MONTHLY);
+        when(mockSnapshot.getMinWage()).thenReturn(BigDecimal.valueOf(10_000));  // 시급 기준, 연환산 20,800,000
 
         AnalysisResponse response = new AnalysisResponse(
                 "12345", 0.9, 20, "HIGH", List.of(), List.of(), "메시지", null
@@ -229,8 +226,7 @@ class PubSubAsyncAnalysisServiceTest {
         when(mockItem.getCountry()).thenReturn(mockCountry);
         when(countryMetricsSnapshotRepository.findTopByCountryOrderBySnapshotDateDesc(mockCountry))
                 .thenReturn(Optional.of(mockSnapshot));
-        when(mockSnapshot.getMinWage()).thenReturn(BigDecimal.valueOf(2_000_000));
-        when(mockSnapshot.getMinWageUnit()).thenReturn(WageUnit.MONTHLY);
+        when(mockSnapshot.getMinWage()).thenReturn(BigDecimal.valueOf(10_000));  // 시급 기준, 연환산 20,800,000
 
         AnalysisResponse response = new AnalysisResponse(
                 "12345", 0.3, 80, "LOW", List.of(), List.of(), "메시지", null

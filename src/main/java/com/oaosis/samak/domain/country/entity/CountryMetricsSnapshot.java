@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -33,25 +34,20 @@ public class CountryMetricsSnapshot{
     @Column(name = "min_wage", precision = 12, scale = 2)
     private BigDecimal minWage;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "wage_unit", length = 20, nullable = false)
-    private WageUnit minWageUnit;
+    @Column(name = "median_annual_income", precision = 12, scale = 2)
+    private BigDecimal medianAnnualIncome;
 
-    @Column(name = "median_income", precision = 12, scale = 2)
-    private BigDecimal medianIncome;
-
-    @Column(name = "avg_income", precision = 12, scale = 2)
-    private BigDecimal avgIncome;
+    @Column(name = "avg_annual_income", precision = 12, scale = 2)
+    private BigDecimal avgAnnualIncome;
 
     @Column(name = "snapshot_date", nullable = false)
     private LocalDate snapshotDate;
 
-    public CountryMetricsSnapshot(Country country, BigDecimal minWage, WageUnit minWageUnit, BigDecimal medianIncome, BigDecimal avgIncome, LocalDate snapshotDate) {
+    public CountryMetricsSnapshot(Country country, BigDecimal minWage, BigDecimal medianAnnualIncome, BigDecimal avgAnnualIncome, LocalDate snapshotDate) {
         this.country = country;
         this.minWage = minWage;
-        this.minWageUnit = minWageUnit;
-        this.medianIncome = medianIncome;
-        this.avgIncome = avgIncome;
+        this.medianAnnualIncome = medianAnnualIncome;
+        this.avgAnnualIncome = avgAnnualIncome;
         this.snapshotDate = snapshotDate;
     }
 }

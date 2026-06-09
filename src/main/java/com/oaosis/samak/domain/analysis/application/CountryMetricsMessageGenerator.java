@@ -2,7 +2,6 @@ package com.oaosis.samak.domain.analysis.application;
 
 import com.oaosis.samak.domain.country.entity.Country;
 import com.oaosis.samak.domain.country.entity.CountryMetricsSnapshot;
-import com.oaosis.samak.domain.country.entity.WageUnit;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -39,10 +38,8 @@ public class CountryMetricsMessageGenerator {
          */
         message.append(countryName)
                 .append("의 평균 연봉은 ")
-                .append(formatCurrency(snapshot.getAvgIncome(), symbol))
-                .append("이며, 법정 최저임금은 ")
-                .append(convertUnit(snapshot.getMinWageUnit()))
-                .append(" 기준 ")
+                .append(formatCurrency(snapshot.getAvgAnnualIncome(), symbol))
+                .append("이며, 법정 최저임금은 시간 기준 ")
                 .append(formatCurrency(snapshot.getMinWage(), symbol))
                 .append("입니다. ");
 
@@ -61,7 +58,7 @@ public class CountryMetricsMessageGenerator {
                 .append("은 해당 국가 평균 대비 ");
 
         BigDecimal avgRatio = userAnnualIncome
-                .divide(snapshot.getAvgIncome(), 4, RoundingMode.HALF_UP);
+                .divide(snapshot.getAvgAnnualIncome(), 4, RoundingMode.HALF_UP);
 
         message.append(avgRatio.multiply(BigDecimal.valueOf(100)).setScale(1, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString())
                 .append("% 수준이며, ");
@@ -78,10 +75,7 @@ public class CountryMetricsMessageGenerator {
         /**
          * 3. 최저임금 대비 위험 구간 메시지
          */
-        BigDecimal annualMinWage = convertToAnnual(
-                snapshot.getMinWage(),
-                snapshot.getMinWageUnit()
-        );
+        BigDecimal annualMinWage = convertToAnnual(snapshot.getMinWage());
 
         BigDecimal minRatio = userAnnualIncome
                 .divide(annualMinWage, 4, RoundingMode.HALF_UP);
@@ -124,29 +118,11 @@ public class CountryMetricsMessageGenerator {
         return message.toString();
     }
 
-    public static BigDecimal convertToAnnual(
-            BigDecimal wage,
-            WageUnit unit
-    ) {
-        final BigDecimal HOURS_PER_DAY = BigDecimal.valueOf(8);
-        final BigDecimal DAYS_PER_WEEK = BigDecimal.valueOf(5);
-        final BigDecimal WEEKS_PER_YEAR = BigDecimal.valueOf(52);
-        final BigDecimal MONTHS_PER_YEAR = BigDecimal.valueOf(12);
-
-        return switch (unit) {
-            case HOURLY ->
-                    wage.multiply(HOURS_PER_DAY)
-                            .multiply(DAYS_PER_WEEK)
-                            .multiply(WEEKS_PER_YEAR);
-            case DAILY ->
-                    wage.multiply(DAYS_PER_WEEK)
-                            .multiply(WEEKS_PER_YEAR);
-            case WEEKLY ->
-                    wage.multiply(WEEKS_PER_YEAR);
-            case MONTHLY ->
-                    wage.multiply(MONTHS_PER_YEAR);
-            case YEARLY -> wage;
-        };
+    public static BigDecimal convertToAnnual(BigDecimal hourlyWage) {
+        return hourlyWage
+                .multiply(BigDecimal.valueOf(8))
+                .multiply(BigDecimal.valueOf(5))
+                .multiply(BigDecimal.valueOf(52));
     }
 
     private static String formatCurrency(
@@ -168,13 +144,4 @@ public class CountryMetricsMessageGenerator {
         return symbol + numberFormatter.format(strippedAmount);
     }
 
-    private static String convertUnit(WageUnit unit) {
-        return switch (unit) {
-            case YEARLY -> "연간";
-            case MONTHLY -> "월";
-            case WEEKLY -> "주";
-            case DAILY -> "일";
-            case HOURLY -> "시간";
-        };
-    }
 }
